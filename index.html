@@ -1487,9 +1487,9 @@ async function startGame() {
   initAudio();
 
   // Read settings from whichever screen is visible
-  const gridBtn = document.querySelector('#startScreen:not(.hidden) #gridOptions button.active, #endScreen:not(.hidden) #gridOptions2 button.active');
-  const minBtn = document.querySelector('#startScreen:not(.hidden) #minWordOptions button.active, #endScreen:not(.hidden) #minWordOptions2 button.active');
-  const timeBtn = document.querySelector('#startScreen:not(.hidden) #timeOptions button.active, #endScreen:not(.hidden) #timeOptions2 button.active');
+  const gridBtn = document.querySelector('#startScreen:not(.hidden) #gridOptions button.active, #newGameModal:not(.hidden) #gridOptions2 button.active');
+  const minBtn = document.querySelector('#startScreen:not(.hidden) #minWordOptions button.active, #newGameModal:not(.hidden) #minWordOptions2 button.active');
+  const timeBtn = document.querySelector('#startScreen:not(.hidden) #timeOptions button.active, #newGameModal:not(.hidden) #timeOptions2 button.active');
   GRID_SIZE = parseInt(gridBtn?.dataset.val || '5');
   MIN_WORD_LENGTH = parseInt(minBtn?.dataset.val || '4');
   const gameDuration = parseInt(timeBtn?.dataset.val || '30');
