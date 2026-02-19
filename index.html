@@ -787,10 +787,6 @@
     width: 100%;
     max-width: 360px;
   }
-  .comparison-player {
-    text-align: center;
-    flex: 1;
-  }
   .comparison-label {
     font-size: 13px;
     color: var(--text-dim);
@@ -806,19 +802,6 @@
     font-size: 13px;
     color: var(--text-dim);
     font-family: 'DM Sans', sans-serif;
-  }
-  .comparison-vs {
-    font-family: 'Space Mono', monospace;
-    font-size: 18px;
-    color: var(--text-dim);
-    padding-top: 16px;
-  }
-  .comparison-result {
-    text-align: center;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 16px;
   }
   .comparison-result.win { color: var(--accent-green); }
   .comparison-result.lose { color: var(--accent-red); }
@@ -844,6 +827,220 @@
   }
   .accordion-word.neither:hover {
     background: rgba(255,255,255,0.1);
+  }
+
+  /* --- CINEMATIC COMPARISON ANIMATIONS --- */
+  @keyframes scoreReveal {
+    0% { opacity: 0; transform: scale(0.7); }
+    60% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes resultSlam {
+    0% { opacity: 0; transform: scale(2.5); }
+    50% { opacity: 1; transform: scale(0.9); }
+    70% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes fadeSlideUp {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(140, 120, 220, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(140, 120, 220, 0.6); }
+  }
+  @keyframes trophyBounce {
+    0% { opacity: 0; transform: scale(0) rotate(-20deg); }
+    50% { opacity: 1; transform: scale(1.3) rotate(5deg); }
+    70% { transform: scale(0.9) rotate(-3deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes barFill {
+    0% { width: 0%; }
+  }
+  @keyframes waitingDots {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* Waiting state hero */
+  .waiting-score-hero {
+    font-family: 'Space Mono', monospace;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    text-align: center;
+    margin: 16px 0 4px;
+    animation: pulseGlow 2s ease-in-out infinite;
+    border-radius: 16px;
+    padding: 16px 32px;
+    background: rgba(140, 120, 220, 0.08);
+  }
+  .waiting-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .waiting-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(140, 120, 220, 0.7);
+    animation: waitingDots 1.4s ease-in-out infinite;
+  }
+  .waiting-dot:nth-child(2) { animation-delay: 0.2s; }
+  .waiting-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Comparison reveal */
+  .comparison-player {
+    text-align: center;
+    flex: 1;
+    opacity: 0;
+    position: relative;
+  }
+  .comparison-player.reveal {
+    opacity: 1;
+    animation: scoreReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .comparison-vs {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--text-dim);
+    padding-top: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .comparison-vs.reveal {
+    opacity: 1;
+  }
+  .comparison-result {
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    opacity: 0;
+  }
+  .comparison-result.reveal {
+    animation: resultSlam 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Winner crown */
+  .winner-crown {
+    font-size: 28px;
+    height: 36px;
+    line-height: 36px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .winner-crown.show {
+    animation: trophyBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Summary bars */
+  .comparison-summary {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 16px;
+    opacity: 0;
+  }
+  .comparison-summary.reveal {
+    animation: fadeSlideUp 0.4s ease forwards;
+  }
+  .summary-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .summary-bar-label {
+    width: 42px;
+    text-align: right;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .summary-bar-track {
+    flex: 1;
+    height: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .summary-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    animation: barFill 0.8s ease-out forwards;
+  }
+  .summary-bar-fill.mine {
+    background: linear-gradient(90deg, #6c5ce7, #a78bfa);
+  }
+  .summary-bar-fill.theirs {
+    background: linear-gradient(90deg, #d4a030, #f0c060);
+  }
+  .summary-bar-pct {
+    width: 36px;
+    font-size: 12px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  /* Confetti canvas */
+  #confettiCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Share button */
+  .share-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(140, 120, 220, 0.2);
+    border: 1.5px solid rgba(140, 120, 220, 0.3);
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    opacity: 0;
+    margin-bottom: 12px;
+  }
+  .share-btn.reveal {
+    animation: fadeSlideUp 0.3s ease forwards;
+  }
+  .share-btn:hover {
+    background: rgba(140, 120, 220, 0.35);
+  }
+  .share-btn:active {
+    transform: scale(0.96);
+  }
+  .share-btn.copied {
+    background: rgba(92, 224, 160, 0.2);
+    border-color: rgba(92, 224, 160, 0.4);
+  }
+
+  /* Staggered accordion */
+  .accordion-section.stagger-in {
+    opacity: 0;
+    animation: fadeSlideUp 0.35s ease forwards;
+  }
+
+  /* Fade-out transition for waiting state */
+  #challengeWaiting {
+    transition: opacity 0.3s ease;
+  }
+  #challengeWaiting.fading {
+    opacity: 0;
   }
 
   .hidden { display: none !important; }
@@ -921,30 +1118,38 @@
   <div id="challengeWaiting">
     <div class="end-header">
       <h1>Nice!</h1>
-      <div class="end-score" id="challengeMyScore">0</div>
+      <div class="waiting-score-hero" id="challengeMyScore">0</div>
       <div class="end-ratio" id="challengeMyRatio">0/0 words</div>
     </div>
     <div class="waiting-box">
-      <div class="waiting-spinner"></div>
+      <div class="waiting-dots">
+        <span class="waiting-dot"></span>
+        <span class="waiting-dot"></span>
+        <span class="waiting-dot"></span>
+      </div>
       <p>Waiting for opponent...</p>
     </div>
   </div>
   <!-- Comparison state -->
   <div id="challengeComparison" class="hidden challenge-comparison-wrap">
     <div class="comparison-header">
-      <div class="comparison-player">
+      <div class="comparison-player" id="compPlayerMe">
+        <div class="winner-crown" id="crownMe"></div>
         <div class="comparison-label">You</div>
         <div class="comparison-score" id="compMyScore">0</div>
         <div class="comparison-words" id="compMyWords">0 words</div>
       </div>
-      <div class="comparison-vs">vs</div>
-      <div class="comparison-player">
+      <div class="comparison-vs" id="compVs">vs</div>
+      <div class="comparison-player" id="compPlayerThem">
+        <div class="winner-crown" id="crownThem"></div>
         <div class="comparison-label">Opponent</div>
         <div class="comparison-score" id="compTheirScore">0</div>
         <div class="comparison-words" id="compTheirWords">0 words</div>
       </div>
     </div>
     <div class="comparison-result" id="compResult"></div>
+    <div class="comparison-summary" id="compSummary"></div>
+    <button class="share-btn" id="shareBtn">Share Results</button>
     <div class="accordion-container" id="challengeAccordionContainer"></div>
   </div>
   <button class="play-again-trigger" id="challengePlayAgain">Play again</button>
@@ -1876,7 +2081,7 @@ function showSoloEndScreen() {
   endScreen.classList.remove('hidden');
 }
 
-function buildWordAccordion(container, allWords, myWords, theirWords) {
+function buildWordAccordion(container, allWords, myWords, theirWords, stagger = false) {
   const isComparison = !!theirWords;
   const byLength = {};
   for (const w of allWords) {
@@ -1888,11 +2093,15 @@ function buildWordAccordion(container, allWords, myWords, theirWords) {
 
   const lengths = Object.keys(byLength).map(Number).sort((a, b) => a - b);
 
-  lengths.forEach(len => {
+  lengths.forEach((len, index) => {
     const words = byLength[len].sort();
     const foundInGroup = words.filter(w => myWords.has(w));
     const section = document.createElement('div');
     section.className = 'accordion-section';
+    if (stagger) {
+      section.classList.add('stagger-in');
+      section.style.animationDelay = `${index * 0.08}s`;
+    }
 
     const header = document.createElement('div');
     header.className = 'accordion-header';
@@ -1930,6 +2139,11 @@ function buildWordAccordion(container, allWords, myWords, theirWords) {
     section.appendChild(header);
     section.appendChild(body);
     container.appendChild(section);
+
+    // Auto-open first section
+    if (stagger && index === 0) {
+      section.classList.add('open');
+    }
   });
 }
 
@@ -2083,14 +2297,29 @@ function showChallengeResults(data) {
     allWordPaths = solveResult.paths;
   }
 
+  function fadeToComparison(myD, theirD, challengeD) {
+    waitingEl.classList.add('fading');
+    setTimeout(() => {
+      waitingEl.classList.add('hidden');
+      waitingEl.classList.remove('fading');
+      compEl.classList.remove('hidden');
+      renderComparison(myD, theirD, challengeD);
+    }, 300);
+  }
+
   if (opponentData) {
-    // Show comparison
-    waitingEl.classList.add('hidden');
-    compEl.classList.remove('hidden');
-    renderComparison(myData, opponentData, data);
+    // Show comparison (skip fade if waiting wasn't visible)
+    if (!waitingEl.classList.contains('hidden')) {
+      fadeToComparison(myData, opponentData, data);
+    } else {
+      waitingEl.classList.add('hidden');
+      compEl.classList.remove('hidden');
+      renderComparison(myData, opponentData, data);
+    }
   } else {
     // Show waiting state
     waitingEl.classList.remove('hidden');
+    waitingEl.classList.remove('fading');
     compEl.classList.add('hidden');
 
     document.getElementById('challengeMyScore').textContent = myData?.score || totalScore;
@@ -2107,9 +2336,7 @@ function showChallengeResults(data) {
           if (challengeUnsubscribe) challengeUnsubscribe();
           challengeUnsubscribe = null;
           currentChallengeData = updated;
-          waitingEl.classList.add('hidden');
-          compEl.classList.remove('hidden');
-          renderComparison(updated.players[MY_PLAYER_ID], updated.players[oppId], updated);
+          fadeToComparison(updated.players[MY_PLAYER_ID], updated.players[oppId], updated);
         }
       });
   }
@@ -2117,32 +2344,241 @@ function showChallengeResults(data) {
   challengeEndEl.classList.remove('hidden');
 }
 
-function renderComparison(myData, theirData, challengeData) {
-  document.getElementById('compMyScore').textContent = myData.score;
-  document.getElementById('compMyWords').textContent = `${myData.wordCount} words`;
-  document.getElementById('compTheirScore').textContent = theirData.score;
-  document.getElementById('compTheirWords').textContent = `${theirData.wordCount} words`;
+// ========== CINEMATIC COMPARISON UTILITIES ==========
+let comparisonTimeouts = [];
 
-  const resultEl = document.getElementById('compResult');
-  if (myData.score > theirData.score) {
-    resultEl.textContent = 'You win!';
-    resultEl.className = 'comparison-result win';
-  } else if (myData.score < theirData.score) {
-    resultEl.textContent = 'You lose';
-    resultEl.className = 'comparison-result lose';
-  } else {
-    resultEl.textContent = "It's a tie!";
-    resultEl.className = 'comparison-result tie';
+function animateCountUp(el, target, duration) {
+  const start = performance.now();
+  const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    el.textContent = Math.round(ease(progress) * target);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const colors = ['#5ce0a0', '#a78bfa', '#f0c060', '#ff6b7a', '#60b0f0', '#ffffff'];
+
+  for (let i = 0; i < 80; i++) {
+    particles.push({
+      x: canvas.width * 0.5 + (Math.random() - 0.5) * 100,
+      y: canvas.height * 0.4,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -Math.random() * 14 - 4,
+      w: Math.random() * 8 + 4,
+      h: Math.random() * 6 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      gravity: 0.3 + Math.random() * 0.15,
+      opacity: 1,
+    });
   }
 
-  // Build comparison accordion
-  const container = document.getElementById('challengeAccordionContainer');
-  container.innerHTML = '';
+  let frame;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    for (const p of particles) {
+      p.x += p.vx;
+      p.vy += p.gravity;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.opacity -= 0.006;
+      if (p.opacity <= 0) continue;
+      alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    if (alive) {
+      frame = requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  frame = requestAnimationFrame(draw);
+  // Auto-cleanup after 4 seconds
+  setTimeout(() => {
+    cancelAnimationFrame(frame);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 4000);
+}
 
+function buildSummaryBars(container, myData, theirData, totalWords) {
+  container.innerHTML = '';
+  const myPct = totalWords > 0 ? Math.round((myData.wordCount / totalWords) * 100) : 0;
+  const theirPct = totalWords > 0 ? Math.round((theirData.wordCount / totalWords) * 100) : 0;
+
+  function makeRow(label, pct, cls) {
+    const row = document.createElement('div');
+    row.className = 'summary-bar-row';
+    row.innerHTML = `
+      <span class="summary-bar-label">${label}</span>
+      <div class="summary-bar-track">
+        <div class="summary-bar-fill ${cls}" style="width: ${Math.max(pct, 2)}%"></div>
+      </div>
+      <span class="summary-bar-pct">${pct}%</span>
+    `;
+    return row;
+  }
+
+  container.appendChild(makeRow('You', myPct, 'mine'));
+  container.appendChild(makeRow('Them', theirPct, 'theirs'));
+}
+
+function generateShareText(myData, theirData, challengeData) {
   const myWords = new Set(myData.wordsFound || []);
   const theirWords = new Set(theirData.wordsFound || []);
+  const allWords = [...(validWordsOnBoard || [])].sort();
+  const totalFound = new Set([...myWords, ...theirWords]).size;
+  const isWin = myData.score > theirData.score;
+  const isTie = myData.score === theirData.score;
+  const header = isWin ? 'Boggle PvP 👑' : isTie ? 'Boggle PvP 🤝' : 'Boggle PvP';
 
-  buildWordAccordion(container, validWordsOnBoard, myWords, theirWords);
+  // Build emoji grid — 10 per row
+  const emojis = allWords.map(w => {
+    const iFound = myWords.has(w);
+    const theyFound = theirWords.has(w);
+    if (iFound && theyFound) return '🟩';
+    if (iFound) return '🟪';
+    if (theyFound) return '🟨';
+    return '⬛';
+  });
+  const rows = [];
+  for (let i = 0; i < emojis.length; i += 10) {
+    rows.push(emojis.slice(i, i + 10).join(''));
+  }
+  // Limit to 4 rows for readability
+  const grid = rows.slice(0, 4).join('\n');
+
+  return `${header}\n${myData.score} - ${theirData.score}\n${totalFound}/${allWords.length} words found\n\n${grid}`;
+}
+
+// ========== CINEMATIC COMPARISON ==========
+function renderComparison(myData, theirData, challengeData) {
+  // Clear previous animation timeouts
+  comparisonTimeouts.forEach(id => clearTimeout(id));
+  comparisonTimeouts = [];
+
+  const playerMe = document.getElementById('compPlayerMe');
+  const playerThem = document.getElementById('compPlayerThem');
+  const vsEl = document.getElementById('compVs');
+  const resultEl = document.getElementById('compResult');
+  const crownMe = document.getElementById('crownMe');
+  const crownThem = document.getElementById('crownThem');
+  const summaryEl = document.getElementById('compSummary');
+  const shareBtn = document.getElementById('shareBtn');
+  const container = document.getElementById('challengeAccordionContainer');
+
+  // Reset all states
+  playerMe.classList.remove('reveal');
+  playerThem.classList.remove('reveal');
+  vsEl.classList.remove('reveal');
+  resultEl.classList.remove('reveal');
+  resultEl.className = 'comparison-result';
+  crownMe.classList.remove('show');
+  crownThem.classList.remove('show');
+  crownMe.textContent = '';
+  crownThem.textContent = '';
+  summaryEl.classList.remove('reveal');
+  summaryEl.innerHTML = '';
+  shareBtn.classList.remove('reveal', 'copied');
+  container.innerHTML = '';
+
+  // Set score values (hidden, will be revealed)
+  document.getElementById('compMyScore').textContent = '0';
+  document.getElementById('compMyWords').textContent = `${myData.wordCount} words`;
+  document.getElementById('compTheirScore').textContent = '0';
+  document.getElementById('compTheirWords').textContent = `${theirData.wordCount} words`;
+
+  const isWin = myData.score > theirData.score;
+  const isLoss = myData.score < theirData.score;
+  const isTie = myData.score === theirData.score;
+  const totalWords = validWordsOnBoard ? validWordsOnBoard.size : 0;
+
+  // Phase 0: Your score reveals + count-up
+  comparisonTimeouts.push(setTimeout(() => {
+    playerMe.classList.add('reveal');
+    animateCountUp(document.getElementById('compMyScore'), myData.score, 600);
+  }, 0));
+
+  // Phase 1: "vs" appears
+  comparisonTimeouts.push(setTimeout(() => {
+    vsEl.classList.add('reveal');
+  }, 300));
+
+  // Phase 2: Opponent score reveals + count-up
+  comparisonTimeouts.push(setTimeout(() => {
+    playerThem.classList.add('reveal');
+    animateCountUp(document.getElementById('compTheirScore'), theirData.score, 600);
+  }, 500));
+
+  // Phase 3: Result text slams in + crown
+  comparisonTimeouts.push(setTimeout(() => {
+    if (isWin) {
+      resultEl.textContent = 'You win!';
+      resultEl.className = 'comparison-result win reveal';
+      crownMe.textContent = '👑';
+      crownMe.classList.add('show');
+    } else if (isLoss) {
+      resultEl.textContent = 'You lose';
+      resultEl.className = 'comparison-result lose reveal';
+      crownThem.textContent = '👑';
+      crownThem.classList.add('show');
+    } else {
+      resultEl.textContent = "It's a tie!";
+      resultEl.className = 'comparison-result tie reveal';
+    }
+  }, 1000));
+
+  // Phase 4: Confetti on win
+  comparisonTimeouts.push(setTimeout(() => {
+    if (isWin) launchConfetti();
+  }, 1200));
+
+  // Phase 5: Summary bars slide in
+  comparisonTimeouts.push(setTimeout(() => {
+    buildSummaryBars(summaryEl, myData, theirData, totalWords);
+    summaryEl.classList.add('reveal');
+  }, 1400));
+
+  // Phase 6: Word accordion staggers in + share button
+  comparisonTimeouts.push(setTimeout(() => {
+    const myWords = new Set(myData.wordsFound || []);
+    const theirWords = new Set(theirData.wordsFound || []);
+    buildWordAccordion(container, validWordsOnBoard, myWords, theirWords, true);
+    shareBtn.classList.add('reveal');
+
+    // Wire up share button
+    shareBtn.onclick = () => {
+      const text = generateShareText(myData, theirData, challengeData);
+      navigator.clipboard.writeText(text).then(() => {
+        shareBtn.textContent = 'Copied!';
+        shareBtn.classList.add('copied');
+        setTimeout(() => {
+          shareBtn.textContent = 'Share Results';
+          shareBtn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback: no clipboard API
+        shareBtn.textContent = 'Share Results';
+      });
+    };
+  }, 1600));
 }
 
 // ========== URL HANDLING ==========
@@ -2309,5 +2745,6 @@ document.getElementById('challengeErrorHomeBtn').addEventListener('click', () =>
 // Check URL for challenge on page load
 checkUrlForChallenge();
 </script>
+<canvas id="confettiCanvas"></canvas>
 </body>
 </html>
