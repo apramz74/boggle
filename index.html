@@ -2277,7 +2277,7 @@ async function endChallengeGame() {
   showChallengeResults(data);
 }
 
-function showChallengeResults(data) {
+async function showChallengeResults(data) {
   const challengeEndEl = document.getElementById('challengeEndScreen');
   const waitingEl = document.getElementById('challengeWaiting');
   const compEl = document.getElementById('challengeComparison');
@@ -2288,6 +2288,7 @@ function showChallengeResults(data) {
 
   // Set up validWordsOnBoard if not already (for comparison accordion word paths)
   if (!validWordsOnBoard || validWordsOnBoard.size === 0) {
+    await loadDictionary();
     GRID_SIZE = data.gridSize;
     MIN_WORD_LENGTH = data.minWordLength;
     NEIGHBOR_MAP = buildNeighborMap();
@@ -2508,7 +2509,7 @@ function renderComparison(myData, theirData, challengeData) {
   const isWin = myData.score > theirData.score;
   const isLoss = myData.score < theirData.score;
   const isTie = myData.score === theirData.score;
-  const totalWords = validWordsOnBoard ? validWordsOnBoard.size : 0;
+  const totalWords = challengeData?.totalValidWords || (validWordsOnBoard ? validWordsOnBoard.size : 0);
 
   // Phase 0: Your score reveals + count-up
   comparisonTimeouts.push(setTimeout(() => {
