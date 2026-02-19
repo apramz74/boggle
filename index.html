@@ -766,6 +766,18 @@
     to { transform: rotate(360deg); }
   }
 
+  .challenge-comparison-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+  .challenge-comparison-wrap.hidden {
+    display: none !important;
+  }
+
   .comparison-header {
     display: flex;
     align-items: center;
@@ -918,7 +930,7 @@
     </div>
   </div>
   <!-- Comparison state -->
-  <div id="challengeComparison" class="hidden">
+  <div id="challengeComparison" class="hidden challenge-comparison-wrap">
     <div class="comparison-header">
       <div class="comparison-player">
         <div class="comparison-label">You</div>
