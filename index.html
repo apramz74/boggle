@@ -1348,7 +1348,11 @@ const BOGGLE_DICE_6x6 = [
 ];
 
 function rollDice(diceSet, count) {
-  const shuffled = [...diceSet].sort(() => Math.random() - 0.5);
+  const shuffled = [...diceSet];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   const board = [];
   for (let i = 0; i < count; i++) {
     const die = shuffled[i % shuffled.length];
@@ -1364,24 +1368,32 @@ let MIN_WORD_LENGTH = 4;
 function generateBoard() {
   const totalTiles = GRID_SIZE * GRID_SIZE;
   const diceSet = GRID_SIZE === 4 ? BOGGLE_DICE_4x4 : GRID_SIZE === 5 ? BOGGLE_DICE_5x5 : BOGGLE_DICE_6x6;
-  
-  // Generate multiple boards and pick the one with the most words
-  // Fewer candidates for larger grids since each solve is heavier
+
+  // Only reroll if a board is genuinely unplayable — not to cherry-pick the best
+  const minWords = GRID_SIZE === 4 ? 30 : GRID_SIZE === 5 ? 100 : 200;
+  const maxAttempts = 5;
+
+  let board = null;
   let bestBoard = null;
   let bestWordCount = 0;
-  const attempts = GRID_SIZE === 4 ? 25 : GRID_SIZE === 5 ? 15 : 8;
-  
-  for (let i = 0; i < attempts; i++) {
+
+  for (let i = 0; i < maxAttempts; i++) {
     const candidate = rollDice(diceSet, totalTiles);
-    const result = findAllWords(candidate);
-    if (result.words.size > bestWordCount) {
-      bestWordCount = result.words.size;
+    const wordCount = findAllWords(candidate).words.size;
+    if (wordCount > bestWordCount) {
+      bestWordCount = wordCount;
       bestBoard = candidate;
     }
+    if (wordCount >= minWords) {
+      board = candidate;
+      break;
+    }
   }
-  
+
+  if (!board) board = bestBoard;
+
   console.log('Board generated with', bestWordCount, 'possible words');
-  return bestBoard;
+  return board;
 }
 
 function getNeighbors(idx) {
