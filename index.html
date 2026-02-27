@@ -153,7 +153,6 @@
     width: 100%;
     max-width: 560px;
     aspect-ratio: 1;
-    container-type: inline-size;
   }
 
   .board {
@@ -174,7 +173,7 @@
     border-radius: 18px;
     box-shadow: 0 4px 0 #d4c8b8, 0 6px 12px rgba(0,0,0,0.07);
     font-family: 'Fredoka', sans-serif;
-    font-size: 17cqi;
+    font-size: clamp(36px, 8vw, 60px);
     font-weight: 700;
     color: #1a1a2e;
     cursor: pointer;
@@ -1257,7 +1256,14 @@
     </div>
     <div class="tally-board-area hidden" id="tallyBoardArea">
       <div class="tally-board-wrap" id="tallyBoardWrap">
-        <svg class="path-svg" id="tallyPathSvg"></svg>
+        <svg class="path-svg" id="tallyPathSvg">
+          <defs>
+            <linearGradient id="tallyLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
         <div class="board" id="tallyBoard"></div>
       </div>
       <div class="tally-word-label" id="tallyWordLabel"></div>
@@ -2648,23 +2654,31 @@ function renderComparison(myData, theirData, challengeData) {
     return;
   }
 
+  // Build word sets for overlap detection
+  const myWordSet = new Set(myWords);
+  const theirWordSet = new Set(theirWords);
+
   // Build interleaved steps: alternate one word from me, one from them
   const steps = [];
   let runMe = 0, runThem = 0;
   const maxI = Math.max(myWords.length, theirWords.length);
   for (let i = 0; i < maxI; i++) {
     if (i < myWords.length) {
-      runMe += scoreWord(myWords[i]);
-      steps.push({ me: runMe, them: runThem, changed: 'me' });
+      const w = myWords[i];
+      runMe += scoreWord(w);
+      const foundBy = theirWordSet.has(w) ? 'both' : 'me';
+      steps.push({ me: runMe, them: runThem, changed: 'me', word: w, foundBy });
     }
     if (i < theirWords.length) {
-      runThem += scoreWord(theirWords[i]);
-      steps.push({ me: runMe, them: runThem, changed: 'them' });
+      const w = theirWords[i];
+      runThem += scoreWord(w);
+      const foundBy = myWordSet.has(w) ? 'both' : 'them';
+      steps.push({ me: runMe, them: runThem, changed: 'them', word: w, foundBy });
     }
   }
 
-  // Batch steps if there are too many — cap at ~25 steps for ~3-5s tally
-  const MAX_STEPS = 25;
+  // Batch steps if there are too many — cap at ~30 steps for ~5-10s tally
+  const MAX_STEPS = 30;
   let displaySteps = steps;
   if (steps.length > MAX_STEPS) {
     const batchSize = Math.ceil(steps.length / MAX_STEPS);
@@ -2680,8 +2694,7 @@ function renderComparison(myData, theirData, challengeData) {
   }
 
   const maxScore = Math.max(myData.score, theirData.score, 1);
-  const MIN_STEP_MS = 120;
-  const stepInterval = Math.max(MIN_STEP_MS, Math.min(200, 3000 / displaySteps.length));
+  const stepInterval = Math.max(300, Math.min(500, 8000 / displaySteps.length));
   let lastLeader = null; // 'me', 'them', or null (tie)
 
   // Bar width: min 52px (just rank badge), max ~75% of track
@@ -2691,15 +2704,57 @@ function renderComparison(myData, theirData, challengeData) {
     return pct + '%';
   }
 
-  // Phase 0: Entrance — bars fade/slide in
+  // Phase 0: Entrance — bars fade/slide in, initialize mini board
   comparisonTimeouts.push(setTimeout(() => {
     leaderboard.classList.add('reveal');
   }, 0));
 
+  // Build initial tally board grid (no highlights) so it fades in with tiles visible
+  comparisonTimeouts.push(setTimeout(() => {
+    const tallyBoard = document.getElementById('tallyBoard');
+    tallyBoard.innerHTML = '';
+    tallyBoard.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+    const gaps = { 4: 6, 5: 5, 6: 4 };
+    tallyBoard.style.gap = (gaps[GRID_SIZE] || 5) + 'px';
+    board.forEach((letter) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.fontSize = '13px';
+      tile.textContent = letter === 'Q' ? 'Qu' : letter;
+      tallyBoard.appendChild(tile);
+    });
+    tallyArea.classList.remove('hidden');
+  }, 200));
+
   // Phase 1: Tally — step through scores
-  const tallyStart = 500;
+  const tallyStart = 700;
   displaySteps.forEach((step, idx) => {
     comparisonTimeouts.push(setTimeout(() => {
+      // Highlight board with word path
+      if (step.word && allWordPaths[step.word]) {
+        const highlightClass = step.foundBy === 'both' ? 'path-highlight-both'
+          : step.foundBy === 'me' ? 'path-highlight-me' : 'path-highlight-them';
+        const lineClass = step.foundBy === 'both' ? 'line-both'
+          : step.foundBy === 'me' ? 'line-me' : 'line-them';
+        renderTallyBoard(step.word, highlightClass, lineClass);
+        const tallyLabel = document.getElementById('tallyWordLabel');
+        tallyLabel.className = 'tally-word-label ' + (step.foundBy || step.changed);
+      }
+
+      // Burst animation on scoring bar(s)
+      if (step.foundBy === 'both') {
+        [fillMe, fillThem].forEach(bar => {
+          bar.classList.remove('burst');
+          void bar.offsetWidth;
+          bar.classList.add('burst');
+        });
+      } else {
+        const burstBar = step.changed === 'me' ? fillMe : fillThem;
+        burstBar.classList.remove('burst');
+        void burstBar.offsetWidth;
+        burstBar.classList.add('burst');
+      }
+
       // Update scores
       scoreMe.textContent = step.me;
       scoreThem.textContent = step.them;
@@ -2751,6 +2806,16 @@ function renderComparison(myData, theirData, challengeData) {
 
   const tallyEnd = tallyStart + displaySteps.length * stepInterval;
 
+  // Phase 1.5: Fade out tally board
+  comparisonTimeouts.push(setTimeout(() => {
+    tallyArea.classList.add('fade-out');
+  }, tallyEnd + 100));
+  comparisonTimeouts.push(setTimeout(() => {
+    tallyArea.classList.add('hidden');
+    tallyArea.classList.remove('fade-out');
+    clearTallyBoard();
+  }, tallyEnd + 400));
+
   // Phase 2: Result text slams in
   comparisonTimeouts.push(setTimeout(() => {
     if (isWin) {
@@ -2763,23 +2828,21 @@ function renderComparison(myData, theirData, challengeData) {
       resultEl.textContent = "It's a tie!";
       resultEl.className = 'comparison-result tie reveal';
     }
-  }, tallyEnd + 400));
+  }, tallyEnd + 600));
 
   // Phase 3: Confetti on win
   comparisonTimeouts.push(setTimeout(() => {
     if (isWin) launchConfetti();
-  }, tallyEnd + 600));
+  }, tallyEnd + 800));
 
   // Phase 4: Word accordion + share button (unhide then animate)
   comparisonTimeouts.push(setTimeout(() => {
     container.style.display = '';
     shareBtn.style.display = '';
-    const myWordSet = new Set(myWords);
-    const theirWordSet = new Set(theirWords);
     buildWordAccordion(container, validWordsOnBoard, myWordSet, theirWordSet, true);
     shareBtn.classList.add('reveal');
     wireShareBtn(shareBtn, myData, theirData, challengeData);
-  }, tallyEnd + 800));
+  }, tallyEnd + 1000));
 }
 
 function wireShareBtn(shareBtn, myData, theirData, challengeData) {
@@ -2815,7 +2878,7 @@ function renderTallyBoard(word, highlightClass, lineClass) {
   const boardWrap = document.getElementById('tallyBoardWrap');
 
   tallyBoard.innerHTML = '';
-  tallySvg.innerHTML = '';
+  tallySvg.querySelectorAll('line').forEach(l => l.remove());
   tallyBoard.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
   const gaps = { 4: 6, 5: 5, 6: 4 };
   tallyBoard.style.gap = (gaps[GRID_SIZE] || 5) + 'px';
@@ -2862,7 +2925,8 @@ function clearTallyBoard() {
   const tallySvg = document.getElementById('tallyPathSvg');
   const tallyLabel = document.getElementById('tallyWordLabel');
   tallyBoard.innerHTML = '';
-  tallySvg.innerHTML = '';
+  // Remove lines but keep <defs> for gradients
+  tallySvg.querySelectorAll('line').forEach(l => l.remove());
   tallyLabel.textContent = '';
   tallyLabel.className = 'tally-word-label';
 }
