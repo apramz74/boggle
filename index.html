@@ -463,6 +463,11 @@
   .accordion-word.found {
     background: rgba(6, 214, 160, 0.15);
     color: #04916c;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .accordion-word.found:hover {
+    background: rgba(6, 214, 160, 0.28);
   }
   .accordion-word.missed {
     background: rgba(0,0,0,0.04);
@@ -1009,19 +1014,35 @@
   .accordion-word.both-found {
     background: rgba(6, 214, 160, 0.15);
     color: #04916c;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .accordion-word.both-found:hover {
+    background: rgba(6, 214, 160, 0.28);
   }
   .accordion-word.only-me {
     background: rgba(67, 97, 238, 0.12);
     color: var(--accent-blue);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .accordion-word.only-me:hover {
+    background: rgba(67, 97, 238, 0.22);
   }
   .accordion-word.only-them {
     background: rgba(247, 127, 0, 0.12);
     color: var(--accent-gold);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .accordion-word.only-them:hover {
+    background: rgba(247, 127, 0, 0.22);
   }
   .accordion-word.neither {
     background: rgba(0,0,0,0.04);
     color: var(--text-dim);
     cursor: pointer;
+    transition: background 0.1s;
   }
   .accordion-word.neither:hover {
     background: rgba(0,0,0,0.08);
@@ -2263,9 +2284,7 @@ function buildWordAccordion(container, allWords, myWords, theirWords, stagger = 
         chip.className = 'accordion-word ' + (myWords.has(w) ? 'found' : 'missed');
       }
       chip.textContent = w;
-      if (!myWords.has(w) && (!theirWords || !theirWords.has(w))) {
-        chip.addEventListener('click', () => showWordPath(w));
-      }
+      chip.addEventListener('click', () => showWordPath(w));
       body.appendChild(chip);
     });
 
