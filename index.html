@@ -174,7 +174,7 @@
     border-radius: 18px;
     box-shadow: 0 4px 0 #d4c8b8, 0 6px 12px rgba(0,0,0,0.07);
     font-family: 'Fredoka', sans-serif;
-    font-size: 13cqi;
+    font-size: 17cqi;
     font-weight: 700;
     color: #1a1a2e;
     cursor: pointer;
@@ -905,6 +905,103 @@
     50% { transform: scale(1.25); }
     100% { transform: scale(1); }
   }
+
+  /* Tally board area */
+  .tally-board-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  .tally-board-area.hidden {
+    display: none;
+  }
+  .tally-board-area.fade-out {
+    opacity: 0;
+  }
+  .tally-board-wrap {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+  .tally-board-wrap .board {
+    width: 100%;
+    height: 100%;
+  }
+  .tally-board-wrap .tile {
+    font-size: 13px;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 2px;
+  }
+  .tally-board-wrap .path-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .tile.path-highlight-me {
+    background: #c084fc;
+    border-color: #a855f7;
+    color: #fff;
+  }
+  .tile.path-highlight-them {
+    background: #fbbf24;
+    border-color: #f59e0b;
+    color: #fff;
+  }
+  .tile.path-highlight-both {
+    background: linear-gradient(135deg, #c084fc, #fbbf24);
+    border-color: #a855f7;
+    color: #fff;
+  }
+  .tally-board-wrap .path-svg line.line-me {
+    stroke: #a855f7;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+  .tally-board-wrap .path-svg line.line-them {
+    stroke: #f59e0b;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+  .tally-board-wrap .path-svg line.line-both {
+    stroke: url(#tallyLineGradient);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+  .tally-word-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    min-height: 24px;
+  }
+  .tally-word-label.me { color: #a855f7; }
+  .tally-word-label.them { color: #f59e0b; }
+  .tally-word-label.both {
+    background: linear-gradient(90deg, #a855f7, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .race-bar.burst {
+    animation: barBurst 0.35s ease;
+  }
+  @keyframes barBurst {
+    0% { transform: scaleY(1); box-shadow: none; }
+    40% { transform: scaleY(1.15); box-shadow: 0 0 12px rgba(168, 85, 247, 0.5); }
+    100% { transform: scaleY(1); box-shadow: none; }
+  }
+
   .comparison-result.win { color: var(--accent-green); }
   .comparison-result.lose { color: var(--accent-red); }
   .comparison-result.tie { color: var(--accent-gold); }
@@ -1157,6 +1254,13 @@
           <span class="race-score" id="raceScoreThem">0</span>
         </div>
       </div>
+    </div>
+    <div class="tally-board-area hidden" id="tallyBoardArea">
+      <div class="tally-board-wrap" id="tallyBoardWrap">
+        <svg class="path-svg" id="tallyPathSvg"></svg>
+        <div class="board" id="tallyBoard"></div>
+      </div>
+      <div class="tally-word-label" id="tallyWordLabel"></div>
     </div>
     <div class="comparison-result" id="compResult"></div>
     <button class="share-btn" id="shareBtn">Share Results</button>
@@ -2490,6 +2594,12 @@ function renderComparison(myData, theirData, challengeData) {
   const shareBtn = document.getElementById('shareBtn');
   const container = document.getElementById('challengeAccordionContainer');
 
+  // Reset tally board
+  const tallyArea = document.getElementById('tallyBoardArea');
+  tallyArea.classList.add('hidden');
+  tallyArea.classList.remove('fade-out');
+  clearTallyBoard();
+
   // Reset all states
   leaderboard.classList.remove('reveal');
   barMe.classList.remove('leader');
@@ -2695,6 +2805,66 @@ function checkUrlForChallenge() {
   if (challengeId) {
     joinChallenge(challengeId);
   }
+}
+
+// ========== TALLY BOARD HELPERS ==========
+function renderTallyBoard(word, highlightClass, lineClass) {
+  const tallyBoard = document.getElementById('tallyBoard');
+  const tallySvg = document.getElementById('tallyPathSvg');
+  const tallyLabel = document.getElementById('tallyWordLabel');
+  const boardWrap = document.getElementById('tallyBoardWrap');
+
+  tallyBoard.innerHTML = '';
+  tallySvg.innerHTML = '';
+  tallyBoard.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+  const gaps = { 4: 6, 5: 5, 6: 4 };
+  tallyBoard.style.gap = (gaps[GRID_SIZE] || 5) + 'px';
+
+  const path = allWordPaths[word] || [];
+  const pathSet = new Set(path);
+
+  board.forEach((letter, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'tile' + (pathSet.has(i) ? ' ' + highlightClass : '');
+    tile.style.fontSize = '13px';
+    tile.textContent = letter === 'Q' ? 'Qu' : letter;
+    tallyBoard.appendChild(tile);
+  });
+
+  // Draw path lines
+  requestAnimationFrame(() => {
+    const wrapRect = boardWrap.getBoundingClientRect();
+    for (let i = 1; i < path.length; i++) {
+      const fromTile = tallyBoard.children[path[i - 1]];
+      const toTile = tallyBoard.children[path[i]];
+      if (!fromTile || !toTile) continue;
+      const fromRect = fromTile.getBoundingClientRect();
+      const toRect = toTile.getBoundingClientRect();
+      const x1 = ((fromRect.left + fromRect.width / 2 - wrapRect.left) / wrapRect.width) * 100 + '%';
+      const y1 = ((fromRect.top + fromRect.height / 2 - wrapRect.top) / wrapRect.height) * 100 + '%';
+      const x2 = ((toRect.left + toRect.width / 2 - wrapRect.left) / wrapRect.width) * 100 + '%';
+      const y2 = ((toRect.top + toRect.height / 2 - wrapRect.top) / wrapRect.height) * 100 + '%';
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.classList.add(lineClass);
+      tallySvg.appendChild(line);
+    }
+  });
+
+  tallyLabel.textContent = word.toUpperCase();
+}
+
+function clearTallyBoard() {
+  const tallyBoard = document.getElementById('tallyBoard');
+  const tallySvg = document.getElementById('tallyPathSvg');
+  const tallyLabel = document.getElementById('tallyWordLabel');
+  tallyBoard.innerHTML = '';
+  tallySvg.innerHTML = '';
+  tallyLabel.textContent = '';
+  tallyLabel.className = 'tally-word-label';
 }
 
 // ========== WORD PATH MODAL ==========
