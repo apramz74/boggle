@@ -1858,14 +1858,12 @@ const musicToggle = document.getElementById('musicToggle');
 function renderBoard() {
   boardEl.innerHTML = '';
   boardEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
-  // Adjust gap and font size for grid density
-  const gaps = { 4: 14, 5: 12, 6: 8 };
-  const fonts = { 4: 24, 5: 22, 6: 18 };
+  // Adjust gap for grid density; font size handled by CSS
+  const gaps = { 4: 14, 5: 10, 6: 8 };
   boardEl.style.gap = (gaps[GRID_SIZE] || 10) + 'px';
   board.forEach((letter, i) => {
     const tile = document.createElement('div');
     tile.className = 'tile';
-    tile.style.fontSize = (fonts[GRID_SIZE] || 20) + 'px';
     tile.textContent = letter === 'Q' ? 'Qu' : letter;
     tile.dataset.index = i;
     boardEl.appendChild(tile);
