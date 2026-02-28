@@ -2419,6 +2419,8 @@ async function endChallengeGame() {
     });
   } catch (err) {
     console.error('Failed to save results:', err);
+    showChallengeError('Failed to save your results. Please try again.');
+    return;
   }
 
   // Fetch latest state
@@ -2475,9 +2477,9 @@ async function showChallengeResults(data) {
     waitingEl.classList.remove('fading');
     compEl.classList.add('hidden');
 
-    document.getElementById('challengeMyScore').textContent = myData?.score || totalScore;
+    document.getElementById('challengeMyScore').textContent = myData?.score ?? 0;
     document.getElementById('challengeMyRatio').textContent =
-      `${myData?.wordCount || foundWords.size}/${data.totalValidWords} words`;
+      `${myData?.wordCount ?? 0}/${data.totalValidWords} words`;
 
     // Listen for opponent
     if (challengeUnsubscribe) challengeUnsubscribe();
@@ -2824,6 +2826,14 @@ function renderComparison(myData, theirData, challengeData) {
   });
 
   const tallyEnd = tallyStart + displaySteps.length * stepInterval;
+
+  // Force final scores to match Firestore (single source of truth)
+  comparisonTimeouts.push(setTimeout(() => {
+    scoreMe.textContent = myData.score;
+    scoreThem.textContent = theirData.score;
+    fillMe.style.width = barWidth(myData.score);
+    fillThem.style.width = barWidth(theirData.score);
+  }, tallyEnd));
 
   // Phase 1.5: Fade out tally board
   comparisonTimeouts.push(setTimeout(() => {
