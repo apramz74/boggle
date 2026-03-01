@@ -165,6 +165,8 @@
 
   .tile {
     position: relative;
+    aspect-ratio: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -287,7 +289,10 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     overflow-y: auto;
-    padding: 24px 16px;
+  }
+  #challengeEndScreen {
+    justify-content: flex-start;
+    padding: 16px 16px 24px;
   }
   .overlay.hidden {
     display: none;
@@ -502,6 +507,15 @@
   .play-again-trigger:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 #2d46c4;
+  }
+  #challengeComparison .play-again-trigger {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.12s, box-shadow 0.12s;
+  }
+  #challengeComparison .play-again-trigger.reveal {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   /* New game modal */
@@ -807,6 +821,8 @@
     width: 100%;
     flex: 1;
     min-height: 0;
+    padding-top: 16px;
+    padding-bottom: 24px;
   }
   .challenge-comparison-wrap.hidden {
     display: none !important;
@@ -815,8 +831,8 @@
   /* Racing leaderboard */
   .race-leaderboard {
     width: 100%;
-    max-width: 360px;
-    margin: 0 auto 16px;
+    max-width: 440px;
+    margin: 0 auto 32px;
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 0.4s ease, transform 0.4s ease;
@@ -827,29 +843,29 @@
   }
   .race-track {
     position: relative;
-    height: 120px;
+    height: 192px;
   }
   .race-row {
     position: absolute;
     left: 0;
     right: 0;
-    height: 52px;
+    height: 84px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     transition: top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .race-row[data-pos="0"] { top: 0; }
-  .race-row[data-pos="1"] { top: 64px; }
+  .race-row[data-pos="1"] { top: 100px; }
   .race-bar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
     height: 100%;
-    border-radius: 14px;
-    padding: 0 16px;
-    border: 2px solid #e8e0d5;
-    min-width: 52px;
+    border-radius: 20px;
+    padding: 0 22px;
+    border: 2.5px solid rgba(150, 140, 130, 0.3);
+    min-width: 120px;
     transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1),
                 border-color 0.3s ease,
                 box-shadow 0.3s ease;
@@ -857,56 +873,52 @@
     white-space: nowrap;
   }
   .race-bar.me {
-    background: linear-gradient(90deg, rgba(67, 97, 238, 0.15), rgba(67, 97, 238, 0.05));
+    background: linear-gradient(90deg, rgba(247, 37, 133, 0.15), rgba(247, 37, 133, 0.05));
+    border-color: rgba(247, 37, 133, 0.3);
   }
   .race-bar.them {
-    background: linear-gradient(90deg, rgba(247, 127, 0, 0.15), rgba(247, 127, 0, 0.05));
+    background: linear-gradient(90deg, rgba(67, 97, 238, 0.15), rgba(67, 97, 238, 0.05));
+    border-color: rgba(67, 97, 238, 0.3);
   }
-  .race-row.leader .race-bar {
-    border-color: rgba(247, 127, 0, 0.5);
-    box-shadow: 0 4px 16px rgba(247, 127, 0, 0.15);
+  .race-row.leader .race-bar.me {
+    border-color: rgba(247, 37, 133, 0.5);
+    box-shadow: 0 4px 16px rgba(247, 37, 133, 0.15);
   }
-  .race-rank {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    background: rgba(0,0,0,0.06);
-    color: var(--text-dim);
-    flex-shrink: 0;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-  }
-  .race-row.leader .race-rank {
-    background: var(--accent-gold);
-    color: #fff;
-    transform: scale(1.1);
+  .race-row.leader .race-bar.them {
+    border-color: rgba(67, 97, 238, 0.5);
+    box-shadow: 0 4px 16px rgba(67, 97, 238, 0.15);
   }
   .race-label {
     font-family: 'Fredoka', sans-serif;
-    font-size: 15px;
+    font-size: 22px;
     font-weight: 600;
     color: var(--text-primary);
   }
+  .race-words {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    margin-left: auto;
+    opacity: 0.7;
+  }
+  .race-bar.me .race-words { color: #f72585; }
+  .race-bar.them .race-words { color: #4361ee; }
   .race-score {
     font-family: 'Fredoka', sans-serif;
-    font-size: 22px;
+    font-size: 32px;
     font-weight: 700;
-    color: var(--accent-gold);
     flex-shrink: 0;
-    min-width: 32px;
-    text-align: right;
   }
+  .race-row[data-player="me"] .race-score { color: #f72585; }
+  .race-row[data-player="them"] .race-score { color: #4361ee; }
   .race-score.bump {
-    animation: scoreBump 0.2s ease;
+    animation: scoreBump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   @keyframes scoreBump {
     0% { transform: scale(1); }
-    50% { transform: scale(1.25); }
+    30% { transform: scale(1.6); }
+    60% { transform: scale(0.9); }
+    80% { transform: scale(1.1); }
     100% { transform: scale(1); }
   }
 
@@ -915,7 +927,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
+    margin-bottom: 32px;
     opacity: 1;
     transition: opacity 0.3s ease;
   }
@@ -925,59 +938,54 @@
   .tally-board-area.fade-out {
     opacity: 0;
   }
-  .tally-board-wrap {
-    position: relative;
-    width: 200px;
-    height: 200px;
+  .tally-board-area .board-container {
+    --tally-scale: 0.88;
+    transform: scale(var(--tally-scale));
+    transform-origin: top center;
+    max-width: 560px;
+    margin-bottom: calc(-1 * (1 - var(--tally-scale)) * min(100vw, 560px) + 8px);
+    opacity: 0.45;
+    transition: opacity 0.25s ease;
   }
-  .tally-board-wrap .board {
-    width: 100%;
-    height: 100%;
+  .tally-board-area .board-container.highlight-active {
+    opacity: 1;
   }
-  .tally-board-wrap .tile {
-    font-size: 13px;
-    width: auto;
-    height: auto;
-    min-width: 0;
-    min-height: 0;
-    padding: 2px;
-  }
-  .tally-board-wrap .path-svg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 2;
+  .tile.path-highlight-me,
+  .tile.path-highlight-them,
+  .tile.path-highlight-both {
+    color: #fff;
+    animation: tilePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .tile.path-highlight-me {
-    background: #c084fc;
-    border-color: #a855f7;
-    color: #fff;
+    background: #f72585;
+    border-color: #c81e6b;
   }
   .tile.path-highlight-them {
-    background: #fbbf24;
-    border-color: #f59e0b;
-    color: #fff;
+    background: #4361ee;
+    border-color: #2d46c4;
   }
   .tile.path-highlight-both {
-    background: linear-gradient(135deg, #c084fc, #fbbf24);
-    border-color: #a855f7;
-    color: #fff;
+    background: linear-gradient(135deg, #f72585, #4361ee);
+    border-color: #c81e6b;
   }
-  .tally-board-wrap .path-svg line.line-me {
-    stroke: #a855f7;
+  @keyframes tilePop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .tally-board-area .path-svg line.line-me {
+    stroke: #f72585;
     stroke-width: 3;
     stroke-linecap: round;
     opacity: 0.7;
   }
-  .tally-board-wrap .path-svg line.line-them {
-    stroke: #f59e0b;
+  .tally-board-area .path-svg line.line-them {
+    stroke: #4361ee;
     stroke-width: 3;
     stroke-linecap: round;
     opacity: 0.7;
   }
-  .tally-board-wrap .path-svg line.line-both {
+  .tally-board-area .path-svg line.line-both {
     stroke: url(#tallyLineGradient);
     stroke-width: 3;
     stroke-linecap: round;
@@ -985,25 +993,99 @@
   }
   .tally-word-label {
     font-family: 'Fredoka', sans-serif;
-    font-size: 18px;
+    font-size: clamp(42px, 9.7vw, 79px);
     font-weight: 700;
-    min-height: 24px;
+    min-height: 56px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 28px;
+    background: #ffffff;
+    border: 3px solid #e8e0d5;
+    border-radius: 18px;
+    box-shadow: 0 4px 0 #d4c8b8, 0 6px 12px rgba(0,0,0,0.07);
   }
-  .tally-word-label.me { color: #a855f7; }
-  .tally-word-label.them { color: #f59e0b; }
-  .tally-word-label.both {
-    background: linear-gradient(90deg, #a855f7, #f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .tally-word-label:empty {
+    min-height: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    font-size: 0;
+  }
+  .tally-word-label.me { color: #f72585; border-color: #f72585; }
+  .tally-word-label.them { color: #4361ee; border-color: #4361ee; }
+  .tally-word-label.both { color: #f72585; border-color: #f72585; }
+  .tally-word-label.both span:nth-child(even) { color: #4361ee; }
+  .tally-progress {
+    width: min(100vw - 32px, 560px);
+    transform: scale(var(--tally-scale, 0.88));
+    height: 4px;
+    background: #e8e0d5;
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0.6;
+  }
+  .tally-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f72585, #4361ee);
+    border-radius: 2px;
+    transition: width 0.3s ease;
   }
   .race-bar.burst {
-    animation: barBurst 0.35s ease;
+    animation: barBurst 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .race-bar.me.burst {
+    animation-name: barBurstMe;
+  }
+  .race-bar.them.burst {
+    animation-name: barBurstThem;
+  }
+  @keyframes barBurstMe {
+    0% { transform: scale(1); box-shadow: none; filter: brightness(1); }
+    20% { transform: scale(1.06, 1.25); box-shadow: 0 0 20px rgba(247, 37, 133, 0.6); filter: brightness(1.2); }
+    50% { transform: scale(1.02, 1.08); box-shadow: 0 0 10px rgba(247, 37, 133, 0.3); filter: brightness(1.05); }
+    100% { transform: scale(1); box-shadow: none; filter: brightness(1); }
+  }
+  @keyframes barBurstThem {
+    0% { transform: scale(1); box-shadow: none; filter: brightness(1); }
+    20% { transform: scale(1.06, 1.25); box-shadow: 0 0 20px rgba(67, 97, 238, 0.6); filter: brightness(1.2); }
+    50% { transform: scale(1.02, 1.08); box-shadow: 0 0 10px rgba(67, 97, 238, 0.3); filter: brightness(1.05); }
+    100% { transform: scale(1); box-shadow: none; filter: brightness(1); }
   }
   @keyframes barBurst {
-    0% { transform: scaleY(1); box-shadow: none; }
-    40% { transform: scaleY(1.15); box-shadow: 0 0 12px rgba(168, 85, 247, 0.5); }
-    100% { transform: scaleY(1); box-shadow: none; }
+    0% { transform: scale(1); box-shadow: none; filter: brightness(1); }
+    20% { transform: scale(1.06, 1.25); box-shadow: 0 0 20px rgba(247, 37, 133, 0.6); filter: brightness(1.2); }
+    50% { transform: scale(1.02, 1.08); box-shadow: 0 0 10px rgba(247, 37, 133, 0.3); filter: brightness(1.05); }
+    100% { transform: scale(1); box-shadow: none; filter: brightness(1); }
+  }
+
+  .score-particle {
+    position: fixed;
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(32px, 7vw, 48px);
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transform: scale(0);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .score-particle.me { color: #f72585; }
+  .score-particle.them { color: #4361ee; }
+  .score-particle.pop {
+    opacity: 1;
+    transform: scale(1);
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.12s ease;
+  }
+  .score-particle.fly {
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease;
   }
 
   .comparison-result.win { color: var(--accent-green); }
@@ -1021,22 +1103,22 @@
     background: rgba(6, 214, 160, 0.28);
   }
   .accordion-word.only-me {
+    background: rgba(247, 37, 133, 0.12);
+    color: var(--accent-pink);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .accordion-word.only-me:hover {
+    background: rgba(247, 37, 133, 0.22);
+  }
+  .accordion-word.only-them {
     background: rgba(67, 97, 238, 0.12);
     color: var(--accent-blue);
     cursor: pointer;
     transition: background 0.1s;
   }
-  .accordion-word.only-me:hover {
-    background: rgba(67, 97, 238, 0.22);
-  }
-  .accordion-word.only-them {
-    background: rgba(247, 127, 0, 0.12);
-    color: var(--accent-gold);
-    cursor: pointer;
-    transition: background 0.1s;
-  }
   .accordion-word.only-them:hover {
-    background: rgba(247, 127, 0, 0.22);
+    background: rgba(67, 97, 238, 0.22);
   }
   .accordion-word.neither {
     background: rgba(0,0,0,0.04);
@@ -1257,43 +1339,36 @@
   </div>
   <!-- Comparison state -->
   <div id="challengeComparison" class="hidden challenge-comparison-wrap">
+    <!-- Top: Ambient board (real #boardContainer gets reparented here) -->
+    <div class="tally-board-area" id="tallyBoardArea">
+      <div class="tally-progress" id="tallyProgress"><div class="tally-progress-fill" id="tallyProgressFill"></div></div>
+      <div class="tally-word-label" id="tallyWordLabel"></div>
+    </div>
+    <!-- Middle: Score bars -->
     <div class="race-leaderboard" id="raceLeaderboard">
       <div class="race-track">
-        <div class="race-row" id="raceBarMe" data-player="me">
-          <div class="race-bar me" id="raceFillMe">
-            <span class="race-rank" id="raceRankMe">1</span>
-            <span class="race-label">You</span>
-          </div>
-          <span class="race-score" id="raceScoreMe">0</span>
-        </div>
         <div class="race-row" id="raceBarThem" data-player="them">
           <div class="race-bar them" id="raceFillThem">
-            <span class="race-rank" id="raceRankThem">2</span>
-            <span class="race-label">Opponent</span>
+            <span class="race-label">Them</span>
+            <span class="race-words" id="raceWordsThem">0 words</span>
           </div>
           <span class="race-score" id="raceScoreThem">0</span>
         </div>
+        <div class="race-row" id="raceBarMe" data-player="me">
+          <div class="race-bar me" id="raceFillMe">
+            <span class="race-label">You</span>
+            <span class="race-words" id="raceWordsMe">0 words</span>
+          </div>
+          <span class="race-score" id="raceScoreMe">0</span>
+        </div>
       </div>
     </div>
-    <div class="tally-board-area hidden" id="tallyBoardArea">
-      <div class="tally-board-wrap" id="tallyBoardWrap">
-        <svg class="path-svg" id="tallyPathSvg">
-          <defs>
-            <linearGradient id="tallyLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#a855f7"/>
-              <stop offset="100%" stop-color="#f59e0b"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="board" id="tallyBoard"></div>
-      </div>
-      <div class="tally-word-label" id="tallyWordLabel"></div>
-    </div>
+    <!-- Bottom: Post-tally controls -->
     <div class="comparison-result" id="compResult"></div>
     <button class="share-btn" id="shareBtn">Share Results</button>
     <div class="accordion-container" id="challengeAccordionContainer"></div>
+    <button class="play-again-trigger" id="challengePlayAgain">Play again</button>
   </div>
-  <button class="play-again-trigger" id="challengePlayAgain">Play again</button>
 </div>
 
 <!-- CHALLENGE ERROR SCREEN -->
@@ -1374,7 +1449,14 @@
 </div>
 
 <div class="board-container" id="boardContainer" style="visibility: hidden;">
-  <svg class="path-svg" id="pathSvg"></svg>
+  <svg class="path-svg" id="pathSvg">
+    <defs>
+      <linearGradient id="tallyLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f72585"/>
+        <stop offset="100%" stop-color="#4361ee"/>
+      </linearGradient>
+    </defs>
+  </svg>
   <div class="board" id="board"></div>
 </div>
 
@@ -1882,7 +1964,7 @@ function getTileCenter(idx) {
 }
 
 function updatePathSvg() {
-  pathSvg.innerHTML = '';
+  pathSvg.querySelectorAll('line').forEach(l => l.remove());
   for (let i = 1; i < selectedPath.length; i++) {
     const from = getTileCenter(selectedPath[i - 1]);
     const to = getTileCenter(selectedPath[i]);
@@ -2519,7 +2601,7 @@ function launchConfetti() {
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
   const particles = [];
-  const colors = ['#5ce0a0', '#a78bfa', '#f0c060', '#ff6b7a', '#60b0f0', '#ffffff'];
+  const colors = ['#f72585', '#4361ee', '#06d6a0', '#f0c060', '#60b0f0', '#ffffff'];
 
   for (let i = 0; i < 80; i++) {
     particles.push({
@@ -2613,30 +2695,35 @@ function renderComparison(myData, theirData, challengeData) {
   const fillThem = document.getElementById('raceFillThem');
   const scoreMe = document.getElementById('raceScoreMe');
   const scoreThem = document.getElementById('raceScoreThem');
-  const rankMe = document.getElementById('raceRankMe');
-  const rankThem = document.getElementById('raceRankThem');
+  const wordsMe = document.getElementById('raceWordsMe');
+  const wordsThem = document.getElementById('raceWordsThem');
   const resultEl = document.getElementById('compResult');
   const shareBtn = document.getElementById('shareBtn');
   const container = document.getElementById('challengeAccordionContainer');
 
-  // Reset tally board
+  // Reparent real board into tally area
   const tallyArea = document.getElementById('tallyBoardArea');
-  tallyArea.classList.add('hidden');
-  tallyArea.classList.remove('fade-out');
+  tallyArea.classList.remove('hidden', 'fade-out');
+  const boardOriginalParent = boardContainer.parentNode;
+  const boardOriginalNext = boardContainer.nextSibling;
+  boardContainer.style.visibility = 'visible';
+  boardContainer.classList.remove('highlight-active');
+  tallyArea.insertBefore(boardContainer, tallyArea.firstChild);
   clearTallyBoard();
 
   // Reset all states
   leaderboard.classList.remove('reveal');
   barMe.classList.remove('leader');
   barThem.classList.remove('leader');
-  barMe.setAttribute('data-pos', '0');
-  barThem.setAttribute('data-pos', '1');
-  fillMe.style.width = '52px';
-  fillThem.style.width = '52px';
+  barThem.setAttribute('data-pos', '0');
+  barMe.setAttribute('data-pos', '1');
+  document.getElementById('challengePlayAgain').classList.remove('reveal');
+  fillMe.style.width = '120px';
+  fillThem.style.width = '120px';
   scoreMe.textContent = '0';
   scoreThem.textContent = '0';
-  rankMe.textContent = '1';
-  rankThem.textContent = '2';
+  wordsMe.textContent = '0 words';
+  wordsThem.textContent = '0 words';
   resultEl.classList.remove('reveal');
   resultEl.className = 'comparison-result';
   shareBtn.classList.remove('reveal', 'copied');
@@ -2668,6 +2755,7 @@ function renderComparison(myData, theirData, challengeData) {
       const theirWordSet = new Set(theirWords);
       buildWordAccordion(container, validWordsOnBoard, myWordSet, theirWordSet, true);
       shareBtn.classList.add('reveal');
+      document.getElementById('challengePlayAgain').classList.add('reveal');
       wireShareBtn(shareBtn, myData, theirData, challengeData);
     }, 800));
     return;
@@ -2680,19 +2768,22 @@ function renderComparison(myData, theirData, challengeData) {
   // Build interleaved steps: alternate one word from me, one from them
   const steps = [];
   let runMe = 0, runThem = 0;
+  let myWordCount = 0, theirWordCount = 0;
   const maxI = Math.max(myWords.length, theirWords.length);
   for (let i = 0; i < maxI; i++) {
     if (i < myWords.length) {
       const w = myWords[i];
       runMe += scoreWord(w);
+      myWordCount++;
       const foundBy = theirWordSet.has(w) ? 'both' : 'me';
-      steps.push({ me: runMe, them: runThem, changed: 'me', word: w, foundBy });
+      steps.push({ me: runMe, them: runThem, changed: 'me', word: w, foundBy, wordCountMe: myWordCount, wordCountThem: theirWordCount });
     }
     if (i < theirWords.length) {
       const w = theirWords[i];
       runThem += scoreWord(w);
+      theirWordCount++;
       const foundBy = myWordSet.has(w) ? 'both' : 'them';
-      steps.push({ me: runMe, them: runThem, changed: 'them', word: w, foundBy });
+      steps.push({ me: runMe, them: runThem, changed: 'them', word: w, foundBy, wordCountMe: myWordCount, wordCountThem: theirWordCount });
     }
   }
 
@@ -2713,117 +2804,143 @@ function renderComparison(myData, theirData, challengeData) {
   }
 
   const maxScore = Math.max(myData.score, theirData.score, 1);
-  const stepInterval = Math.max(300, Math.min(500, 8000 / displaySteps.length));
+  const stepInterval = Math.max(1100, Math.min(1300, 12000 / displaySteps.length));
   let lastLeader = null; // 'me', 'them', or null (tie)
 
-  // Bar width: min 52px (just rank badge), max ~75% of track
+  // Bar width: min 80px, max ~75% of track
   function barWidth(score) {
-    if (score === 0) return '52px';
+    if (score === 0) return '120px';
     const pct = Math.max(15, (score / maxScore) * 75);
     return pct + '%';
   }
 
-  // Phase 0: Entrance — bars fade/slide in, initialize mini board
+  // Rebuild board grid (no highlights) — reuses real board component
+  renderBoard();
+  pathSvg.querySelectorAll('line').forEach(l => l.remove());
+
+  // Phase 0: Entrance — bars fade/slide in
   comparisonTimeouts.push(setTimeout(() => {
     leaderboard.classList.add('reveal');
   }, 0));
 
-  // Build initial tally board grid (no highlights) so it fades in with tiles visible
-  comparisonTimeouts.push(setTimeout(() => {
-    const tallyBoard = document.getElementById('tallyBoard');
-    tallyBoard.innerHTML = '';
-    tallyBoard.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
-    const gaps = { 4: 6, 5: 5, 6: 4 };
-    tallyBoard.style.gap = (gaps[GRID_SIZE] || 5) + 'px';
-    board.forEach((letter) => {
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.style.fontSize = '13px';
-      tile.textContent = letter === 'Q' ? 'Qu' : letter;
-      tallyBoard.appendChild(tile);
-    });
-    tallyArea.classList.remove('hidden');
-  }, 200));
-
   // Phase 1: Tally — step through scores
-  const tallyStart = 700;
+  const tallyStart = 500;
   displaySteps.forEach((step, idx) => {
+    const stepTime = tallyStart + idx * stepInterval;
+    const wordLen = step.word ? step.word.length : 3;
+    const spellDelay = (wordLen - 1) * 60;
+
+    // Compute point deltas for this step
+    const prevMe = idx > 0 ? displaySteps[idx - 1].me : 0;
+    const prevThem = idx > 0 ? displaySteps[idx - 1].them : 0;
+    const deltaMe = step.me - prevMe;
+    const deltaThem = step.them - prevThem;
+
+    // Phase A: Board highlights + word spell-out + progress bar
     comparisonTimeouts.push(setTimeout(() => {
+      // Update progress bar
+      document.getElementById('tallyProgressFill').style.width = ((idx + 1) / displaySteps.length * 100) + '%';
+
       // Highlight board with word path
       if (step.word && allWordPaths[step.word]) {
         const highlightClass = step.foundBy === 'both' ? 'path-highlight-both'
           : step.foundBy === 'me' ? 'path-highlight-me' : 'path-highlight-them';
-        const lineClass = step.foundBy === 'both' ? 'line-both'
-          : step.foundBy === 'me' ? 'line-me' : 'line-them';
-        renderTallyBoard(step.word, highlightClass, lineClass);
+        renderTallyBoard(step.word, highlightClass);
         const tallyLabel = document.getElementById('tallyWordLabel');
         tallyLabel.className = 'tally-word-label ' + (step.foundBy || step.changed);
+        boardContainer.classList.add('highlight-active');
       }
 
-      // Burst animation on scoring bar(s)
-      if (step.foundBy === 'both') {
-        [fillMe, fillThem].forEach(bar => {
-          bar.classList.remove('burst');
-          void bar.offsetWidth;
-          bar.classList.add('burst');
+    }, stepTime));
+
+    // Phase B: Particle launch, then score/bar/burst/bump on arrival
+    comparisonTimeouts.push(setTimeout(() => {
+      const tallyLabel = document.getElementById('tallyWordLabel');
+
+      function updateScoreVisual(who) {
+        if (who === 'me') {
+          scoreMe.textContent = step.me;
+          fillMe.style.width = barWidth(step.me);
+          fillMe.classList.remove('burst');
+          void fillMe.offsetWidth;
+          fillMe.classList.add('burst');
+          scoreMe.classList.remove('bump');
+          void scoreMe.offsetWidth;
+          scoreMe.classList.add('bump');
+        } else {
+          scoreThem.textContent = step.them;
+          fillThem.style.width = barWidth(step.them);
+          fillThem.classList.remove('burst');
+          void fillThem.offsetWidth;
+          fillThem.classList.add('burst');
+          scoreThem.classList.remove('bump');
+          void scoreThem.offsetWidth;
+          scoreThem.classList.add('bump');
+        }
+        // Update word counts when score lands
+        wordsMe.textContent = step.wordCountMe === 1 ? '1 word' : step.wordCountMe + ' words';
+        wordsThem.textContent = step.wordCountThem === 1 ? '1 word' : step.wordCountThem + ' words';
+      }
+
+      function updateLeader() {
+        let leader = null;
+        if (step.me > step.them) leader = 'me';
+        else if (step.them > step.me) leader = 'them';
+        if (leader !== null && leader !== lastLeader) {
+          lastLeader = leader;
+          if (leader === 'me') {
+            barMe.setAttribute('data-pos', '0');
+            barThem.setAttribute('data-pos', '1');
+            barMe.classList.add('leader');
+            barThem.classList.remove('leader');
+          } else {
+            barThem.setAttribute('data-pos', '0');
+            barMe.setAttribute('data-pos', '1');
+            barThem.classList.add('leader');
+            barMe.classList.remove('leader');
+          }
+        } else if (leader === null && lastLeader !== null) {
+          barMe.classList.remove('leader');
+          barThem.classList.remove('leader');
+          lastLeader = null;
+        }
+      }
+
+      if (step.foundBy === 'both' && deltaMe > 0 && deltaThem > 0) {
+        // Both players score — launch two particles, leader swap after both land
+        let arrived = 0;
+        launchScoreParticle(deltaMe, 'me', tallyLabel, fillMe, function() {
+          updateScoreVisual('me');
+          arrived++;
+          if (arrived === 2) updateLeader();
+        });
+        launchScoreParticle(deltaThem, 'them', tallyLabel, fillThem, function() {
+          updateScoreVisual('them');
+          arrived++;
+          if (arrived === 2) updateLeader();
         });
       } else {
-        const burstBar = step.changed === 'me' ? fillMe : fillThem;
-        burstBar.classList.remove('burst');
-        void burstBar.offsetWidth;
-        burstBar.classList.add('burst');
-      }
-
-      // Update scores
-      scoreMe.textContent = step.me;
-      scoreThem.textContent = step.them;
-
-      // Update bar widths
-      fillMe.style.width = barWidth(step.me);
-      fillThem.style.width = barWidth(step.them);
-
-      // Bump animation on changed score
-      const changedEl = step.changed === 'me' ? scoreMe : scoreThem;
-      changedEl.classList.remove('bump');
-      // Force reflow to restart animation
-      void changedEl.offsetWidth;
-      changedEl.classList.add('bump');
-
-      // Determine leader
-      let leader = null;
-      if (step.me > step.them) leader = 'me';
-      else if (step.them > step.me) leader = 'them';
-
-      // Only swap positions on leader change (not ties — keep current positions)
-      if (leader !== null && leader !== lastLeader) {
-        lastLeader = leader;
-        if (leader === 'me') {
-          barMe.setAttribute('data-pos', '0');
-          barThem.setAttribute('data-pos', '1');
-          barMe.classList.add('leader');
-          barThem.classList.remove('leader');
-          rankMe.textContent = '1';
-          rankThem.textContent = '2';
+        // Single player scores
+        const who = step.changed || (deltaMe > 0 ? 'me' : 'them');
+        const delta = who === 'me' ? deltaMe : deltaThem;
+        const targetEl = who === 'me' ? fillMe : fillThem;
+        if (delta > 0) {
+          launchScoreParticle(delta, who, tallyLabel, targetEl, function() {
+            updateScoreVisual(who);
+            updateLeader();
+          });
         } else {
-          barThem.setAttribute('data-pos', '0');
-          barMe.setAttribute('data-pos', '1');
-          barThem.classList.add('leader');
-          barMe.classList.remove('leader');
-          rankThem.textContent = '1';
-          rankMe.textContent = '2';
+          updateScoreVisual(who);
+          updateLeader();
         }
-      } else if (leader === null && lastLeader !== null) {
-        // Tied — remove leader highlights but keep positions
-        barMe.classList.remove('leader');
-        barThem.classList.remove('leader');
-        rankMe.textContent = '-';
-        rankThem.textContent = '-';
-        lastLeader = null;
       }
-    }, tallyStart + idx * stepInterval));
+    }, stepTime + spellDelay));
   });
 
-  const tallyEnd = tallyStart + displaySteps.length * stepInterval;
+  // Account for last step's spell delay + particle flight time
+  const lastWordLen = displaySteps.length > 0 && displaySteps[displaySteps.length - 1].word
+    ? displaySteps[displaySteps.length - 1].word.length : 3;
+  const tallyEnd = tallyStart + displaySteps.length * stepInterval + lastWordLen * 60 + 180 + 300 + 350 + 50;
 
   // Force final scores to match Firestore (single source of truth)
   comparisonTimeouts.push(setTimeout(() => {
@@ -2841,6 +2958,9 @@ function renderComparison(myData, theirData, challengeData) {
     tallyArea.classList.add('hidden');
     tallyArea.classList.remove('fade-out');
     clearTallyBoard();
+    // Return board to its original DOM position
+    boardOriginalParent.insertBefore(boardContainer, boardOriginalNext);
+    boardContainer.style.visibility = 'hidden';
   }, tallyEnd + 400));
 
   // Phase 2: Result text slams in
@@ -2862,12 +2982,13 @@ function renderComparison(myData, theirData, challengeData) {
     if (isWin) launchConfetti();
   }, tallyEnd + 800));
 
-  // Phase 4: Word accordion + share button (unhide then animate)
+  // Phase 4: Word accordion + share button + play-again (unhide then animate)
   comparisonTimeouts.push(setTimeout(() => {
     container.style.display = '';
     shareBtn.style.display = '';
     buildWordAccordion(container, validWordsOnBoard, myWordSet, theirWordSet, true);
     shareBtn.classList.add('reveal');
+    document.getElementById('challengePlayAgain').classList.add('reveal');
     wireShareBtn(shareBtn, myData, theirData, challengeData);
   }, tallyEnd + 1000));
 }
@@ -2897,65 +3018,103 @@ function checkUrlForChallenge() {
   }
 }
 
-// ========== TALLY BOARD HELPERS ==========
-function renderTallyBoard(word, highlightClass, lineClass) {
-  const tallyBoard = document.getElementById('tallyBoard');
-  const tallySvg = document.getElementById('tallyPathSvg');
-  const tallyLabel = document.getElementById('tallyWordLabel');
-  const boardWrap = document.getElementById('tallyBoardWrap');
+// ========== SCORE PARTICLE ==========
+function launchScoreParticle(points, who, fromEl, toEl, onArrive) {
+  var HANG_MS = 300;  // pause at full size so user can read the value
 
-  tallyBoard.innerHTML = '';
-  tallySvg.querySelectorAll('line').forEach(l => l.remove());
-  tallyBoard.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
-  const gaps = { 4: 6, 5: 5, 6: 4 };
-  tallyBoard.style.gap = (gaps[GRID_SIZE] || 5) + 'px';
+  var particle = document.createElement('div');
+  particle.className = 'score-particle ' + who;
+  particle.textContent = '+' + points;
+  document.body.appendChild(particle);
+
+  var fromRect = fromEl.getBoundingClientRect();
+
+  // Position at the right side of the word label, vertically centered
+  var startX = fromRect.right + 6;
+  var particleH = particle.offsetHeight;
+  var startY = fromRect.top + (fromRect.height - particleH) / 2;
+  particle.style.left = startX + 'px';
+  particle.style.top = startY + 'px';
+
+  // Phase 1: Pop in (scale 0 → 1 with overshoot)
+  void particle.offsetWidth;
+  particle.classList.add('pop');
+
+  // Phase 2: After pop + hang, fly to bar
+  var FLY_MS = 350;
+  setTimeout(function() {
+    // Re-measure target since bar width may have changed
+    var toRect = toEl.getBoundingClientRect();
+    var dx = toRect.right - startX - particle.offsetWidth / 2;
+    var dy = toRect.top + toRect.height / 2 - startY - particle.offsetHeight / 2;
+    particle.classList.remove('pop');
+    particle.classList.add('fly');
+    particle.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(0.8)';
+
+    // Fire onArrive ~80% through flight so burst starts as particle makes contact
+    setTimeout(function() {
+      onArrive();
+    }, Math.round(FLY_MS * 0.75));
+
+    // Clean up particle after full flight
+    setTimeout(function() {
+      particle.remove();
+    }, FLY_MS + 50);
+  }, 180 + HANG_MS);
+}
+
+// ========== TALLY BOARD HELPERS ==========
+function renderTallyBoard(word, highlightClass) {
+  const tallyLabel = document.getElementById('tallyWordLabel');
+
+  // Clear previous highlights
+  Array.from(boardEl.children).forEach(tile => {
+    tile.classList.remove('path-highlight-me', 'path-highlight-them', 'path-highlight-both');
+  });
+  pathSvg.querySelectorAll('line').forEach(l => l.remove());
 
   const path = allWordPaths[word] || [];
-  const pathSet = new Set(path);
 
-  board.forEach((letter, i) => {
-    const tile = document.createElement('div');
-    tile.className = 'tile' + (pathSet.has(i) ? ' ' + highlightClass : '');
-    tile.style.fontSize = '13px';
-    tile.textContent = letter === 'Q' ? 'Qu' : letter;
-    tallyBoard.appendChild(tile);
+  // Highlight tiles one at a time, synced with letter animation
+  path.forEach((tileIdx, i) => {
+    const tile = boardEl.children[tileIdx];
+    if (!tile) return;
+    comparisonTimeouts.push(setTimeout(() => {
+      tile.classList.add(highlightClass);
+    }, i * 60));
   });
 
-  // Draw path lines
-  requestAnimationFrame(() => {
-    const wrapRect = boardWrap.getBoundingClientRect();
-    for (let i = 1; i < path.length; i++) {
-      const fromTile = tallyBoard.children[path[i - 1]];
-      const toTile = tallyBoard.children[path[i]];
-      if (!fromTile || !toTile) continue;
-      const fromRect = fromTile.getBoundingClientRect();
-      const toRect = toTile.getBoundingClientRect();
-      const x1 = ((fromRect.left + fromRect.width / 2 - wrapRect.left) / wrapRect.width) * 100 + '%';
-      const y1 = ((fromRect.top + fromRect.height / 2 - wrapRect.top) / wrapRect.height) * 100 + '%';
-      const x2 = ((toRect.left + toRect.width / 2 - wrapRect.left) / wrapRect.width) * 100 + '%';
-      const y2 = ((toRect.top + toRect.height / 2 - wrapRect.top) / wrapRect.height) * 100 + '%';
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1);
-      line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2);
-      line.setAttribute('y2', y2);
-      line.classList.add(lineClass);
-      tallySvg.appendChild(line);
-    }
-  });
+  spellOutWord(tallyLabel, word);
+}
 
-  tallyLabel.textContent = word.toUpperCase();
+function spellOutWord(label, word) {
+  label.innerHTML = '';
+  const letters = word.toUpperCase().split('');
+  letters.forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.style.opacity = '0';
+    span.style.transform = 'scale(0.5)';
+    span.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+    span.style.display = 'inline-block';
+    label.appendChild(span);
+    setTimeout(() => {
+      span.style.opacity = '1';
+      span.style.transform = 'scale(1)';
+    }, i * 60);
+  });
 }
 
 function clearTallyBoard() {
-  const tallyBoard = document.getElementById('tallyBoard');
-  const tallySvg = document.getElementById('tallyPathSvg');
   const tallyLabel = document.getElementById('tallyWordLabel');
-  tallyBoard.innerHTML = '';
-  // Remove lines but keep <defs> for gradients
-  tallySvg.querySelectorAll('line').forEach(l => l.remove());
-  tallyLabel.textContent = '';
+  // Clear highlights from real board tiles
+  Array.from(boardEl.children).forEach(tile => {
+    tile.classList.remove('path-highlight-me', 'path-highlight-them', 'path-highlight-both');
+  });
+  pathSvg.querySelectorAll('line').forEach(l => l.remove());
+  tallyLabel.innerHTML = '';
   tallyLabel.className = 'tally-word-label';
+  document.getElementById('tallyProgressFill').style.width = '0%';
 }
 
 // ========== WORD PATH MODAL ==========
