@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Boggle</title>
+<meta property="og:title" content="Let's boggle up!">
+<meta property="og:image" content="https://boggle-351dc.web.app/og-image.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://boggle-351dc.web.app">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Let's boggle up!">
+<meta name="twitter:image" content="https://boggle-351dc.web.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -761,6 +768,21 @@
     box-shadow: 0 3px 0 #04916c;
   }
   .copy-btn:hover { background: #05b386; }
+  .share-link-btn {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent-blue);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    box-shadow: 0 3px 0 #2d4aad;
+  }
+  .share-link-btn:hover { background: #5a7df2; }
 
   .lobby-settings {
     display: flex;
@@ -1303,6 +1325,7 @@
   <div class="challenge-link-box">
     <input type="text" id="challengeLink" readonly>
     <button class="copy-btn" id="copyLinkBtn">Copy</button>
+    <button class="share-link-btn" id="shareLinkBtn">Share</button>
   </div>
   <button class="play-btn" id="playOwnChallengeBtn">Play Now</button>
 </div>
@@ -3235,6 +3258,17 @@ document.getElementById('copyLinkBtn').addEventListener('click', () => {
     }, 2000);
   });
 });
+
+// Share button — native share sheet (iOS/Android), hidden if unsupported
+const shareLinkBtn = document.getElementById('shareLinkBtn');
+if (navigator.share) {
+  shareLinkBtn.addEventListener('click', () => {
+    const url = document.getElementById('challengeLink').value;
+    navigator.share({ title: "Let's boggle up!", url: url }).catch(() => {});
+  });
+} else {
+  shareLinkBtn.style.display = 'none';
+}
 
 document.getElementById('playOwnChallengeBtn').addEventListener('click', () => {
   startGame();
