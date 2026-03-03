@@ -15,6 +15,7 @@
 <script type="module">
   import { WebHaptics } from "https://esm.sh/web-haptics";
   window.haptics = new WebHaptics();
+  console.log('[haptics] loaded, isSupported:', WebHaptics.isSupported);
 </script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1735,7 +1736,7 @@ function initAudio() {
 }
 
 function hapticTap() {
-  if (window.haptics) window.haptics.trigger([15]);
+  if (window.haptics) window.haptics.trigger("light");
 }
 function hapticSuccess() {
   if (window.haptics) window.haptics.trigger("success");
