@@ -12,6 +12,10 @@
 <meta name="twitter:title" content="Let's boggle up!">
 <meta name="twitter:image" content="https://boggle-351dc.web.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="module">
+  import { WebHaptics } from "https://esm.sh/web-haptics";
+  window.haptics = new WebHaptics();
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1730,6 +1734,19 @@ function initAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
 
+function hapticTap() {
+  if (window.haptics) window.haptics.trigger([15]);
+}
+function hapticSuccess() {
+  if (window.haptics) window.haptics.trigger("success");
+}
+function hapticError() {
+  if (window.haptics) window.haptics.trigger("error");
+}
+function hapticImpact() {
+  if (window.haptics) window.haptics.trigger("nudge");
+}
+
 function playTick() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
@@ -1936,15 +1953,7 @@ function stopMusic() {
 }
 
 // ========== HAPTICS ==========
-function hapticTick() {
-  if (navigator.vibrate) navigator.vibrate(8);
-}
-function hapticSuccess() {
-  if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
-}
-function hapticError() {
-  if (navigator.vibrate) navigator.vibrate([40]);
-}
+// (moved to web-haptics helpers above playTick)
 
 // ========== DOM ==========
 const boardEl = document.getElementById('board');
@@ -2057,6 +2066,7 @@ function onSelectStart(x, y) {
   isSelecting = true;
   selectedPath = [idx];
   playTick();
+  hapticTap();
   updateSelection();
 }
 
@@ -2072,6 +2082,7 @@ function onSelectMove(x, y) {
   if (selectedPath.length >= 2 && idx === selectedPath[selectedPath.length - 2]) {
     selectedPath.pop();
     playTick();
+    hapticTap();
     updateSelection();
     return;
   }
@@ -2081,6 +2092,7 @@ function onSelectMove(x, y) {
 
   selectedPath.push(idx);
   playTick();
+  hapticTap();
   updateSelection();
 }
 
@@ -2137,6 +2149,7 @@ function submitWord() {
     showToast(`${MIN_WORD_LENGTH} letters min`, 'invalid');
     showTileResult(submittedPath, 'result-invalid');
     playInvalidSound();
+    hapticError();
     return;
   }
 
@@ -2144,6 +2157,7 @@ function submitWord() {
     showToast('Already found', 'duplicate');
     showTileResult(submittedPath, 'result-duplicate');
     playInvalidSound();
+    hapticError();
     return;
   }
 
@@ -2158,10 +2172,12 @@ function submitWord() {
     showToast(`+${pts}`, 'valid');
     showTileResult(submittedPath, 'result-valid');
     playValidSound();
+    hapticSuccess();
   } else {
     showToast('Not a word', 'invalid');
     showTileResult(submittedPath, 'result-invalid');
     playInvalidSound();
+    hapticError();
   }
 }
 
@@ -2881,6 +2897,7 @@ function renderComparison(myData, theirData, challengeData) {
       const tallyLabel = document.getElementById('tallyWordLabel');
 
       function updateScoreVisual(who) {
+        hapticImpact();
         if (who === 'me') {
           scoreMe.textContent = step.me;
           fillMe.style.width = barWidth(step.me);
