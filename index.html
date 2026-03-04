@@ -12,25 +12,6 @@
 <meta name="twitter:title" content="Let's boggle up!">
 <meta name="twitter:image" content="https://boggle-351dc.web.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-  // Haptic feedback via <input type="checkbox" switch> (iOS Safari 17.4+)
-  // iOS only fires switch haptics from real user click events.
-  // We place a hidden checkbox and expose it for programmatic use + testing.
-  document.addEventListener('DOMContentLoaded', function() {
-    var label = document.createElement('label');
-    label.setAttribute('for', 'haptic-switch');
-    label.textContent = 'Haptic';
-    label.style.cssText = 'position:fixed;bottom:0;left:0;width:1px;height:1px;overflow:hidden;opacity:0.01;z-index:-1;';
-    var checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.setAttribute('switch', '');
-    checkbox.id = 'haptic-switch';
-    label.appendChild(checkbox);
-    document.body.appendChild(label);
-    window._hapticLabel = label;
-    window._hapticCheckbox = checkbox;
-  });
-</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1750,18 +1731,61 @@ function initAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
 
+// ========== HAPTICS ==========
+// iOS: native haptic via checkbox switch trick (only works from click context)
+function _iosHapticPulse() {
+  try {
+    if (navigator.vibrate) return; // Android uses vibrate instead
+    var label = document.createElement('label');
+    label.style.display = 'none';
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.setAttribute('switch', '');
+    label.appendChild(input);
+    document.head.appendChild(label);
+    label.click();
+    document.head.removeChild(label);
+  } catch(e) {}
+}
+
+// Audio "thud" — sub-bass pulse felt through speakers/Taptic Engine coupling
+function _audioThud() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(60, now);     // 60Hz sub-bass
+  osc.frequency.exponentialRampToValueAtTime(30, now + 0.03);
+  gain.gain.setValueAtTime(0.5, now);         // Brief loud pulse
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+  osc.start(now);
+  osc.stop(now + 0.05);
+}
+
+// Pending haptic for iOS click context
+let _pendingHaptic = null;
+
 function hapticTap() {
-  var cb = window._hapticCheckbox;
-  if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+  if (navigator.vibrate) navigator.vibrate(10);
+  _audioThud();
 }
+
 function hapticSuccess() {
-  hapticTap(); hapticTap();
+  if (navigator.vibrate) { navigator.vibrate([15, 30, 15]); return; }
+  _pendingHaptic = 'success';
 }
+
 function hapticError() {
-  hapticTap(); hapticTap(); hapticTap();
+  if (navigator.vibrate) { navigator.vibrate([40]); return; }
+  _pendingHaptic = 'error';
 }
+
 function hapticImpact() {
-  hapticTap();
+  if (navigator.vibrate) navigator.vibrate(20);
+  _audioThud();
 }
 
 function playTick() {
@@ -1969,8 +1993,7 @@ function stopMusic() {
   musicNodes = [];
 }
 
-// ========== HAPTICS ==========
-// (moved to web-haptics helpers above playTick)
+// ========== HAPTICS (see helpers above playTick) ==========
 
 // ========== DOM ==========
 const boardEl = document.getElementById('board');
@@ -2217,10 +2240,9 @@ function showToast(msg, type) {
 
 // Touch events
 boardContainer.addEventListener('touchstart', e => {
-  e.preventDefault();
   const t = e.touches[0];
   onSelectStart(t.clientX, t.clientY);
-}, { passive: false });
+}, { passive: true });
 
 boardContainer.addEventListener('touchmove', e => {
   e.preventDefault();
@@ -2232,6 +2254,19 @@ boardContainer.addEventListener('touchend', e => {
   e.preventDefault();
   onSelectEnd();
 }, { passive: false });
+
+// iOS native haptic on word submission (fires from click after finger lift)
+boardContainer.addEventListener('click', () => {
+  if (!_pendingHaptic) return;
+  _iosHapticPulse();
+  if (_pendingHaptic === 'success') {
+    setTimeout(() => _iosHapticPulse(), 100);
+  } else if (_pendingHaptic === 'error') {
+    setTimeout(() => _iosHapticPulse(), 100);
+    setTimeout(() => _iosHapticPulse(), 200);
+  }
+  _pendingHaptic = null;
+});
 
 // Mouse events (for desktop)
 boardContainer.addEventListener('mousedown', e => {
