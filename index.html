@@ -15,7 +15,19 @@
 <script type="module">
   import { WebHaptics } from "https://esm.sh/web-haptics";
   window.haptics = new WebHaptics();
-  console.log('[haptics] loaded, isSupported:', WebHaptics.isSupported);
+  window._hapticDebug = true;
+  window._hapticLog = (msg) => {
+    if (!window._hapticDebug) return;
+    let el = document.getElementById('haptic-debug');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'haptic-debug';
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.8);color:#0f0;font:12px monospace;padding:6px 10px;max-height:25vh;overflow-y:auto;pointer-events:none;';
+      document.body.appendChild(el);
+    }
+    el.innerHTML = msg + '<br>' + el.innerHTML;
+  };
+  window._hapticLog('haptics loaded, isSupported: ' + WebHaptics.isSupported);
 </script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1736,15 +1748,19 @@ function initAudio() {
 }
 
 function hapticTap() {
+  if (window._hapticLog) window._hapticLog('hapticTap called, haptics=' + !!window.haptics);
   if (window.haptics) window.haptics.trigger("light");
 }
 function hapticSuccess() {
+  if (window._hapticLog) window._hapticLog('hapticSuccess called');
   if (window.haptics) window.haptics.trigger("success");
 }
 function hapticError() {
+  if (window._hapticLog) window._hapticLog('hapticError called');
   if (window.haptics) window.haptics.trigger("error");
 }
 function hapticImpact() {
+  if (window._hapticLog) window._hapticLog('hapticImpact called');
   if (window.haptics) window.haptics.trigger("nudge");
 }
 
