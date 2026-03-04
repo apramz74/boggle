@@ -35,12 +35,26 @@
     testBtn.addEventListener('click', function() { label.click(); });
     document.body.appendChild(testBtn);
 
-    // Debug: test button triggered from touchstart
+    // Debug: test button triggered from touchstart (with preventDefault)
     var testBtn2 = document.createElement('button');
-    testBtn2.textContent = 'Test haptic touchstart';
-    testBtn2.style.cssText = 'position:fixed;bottom:100px;left:10px;z-index:9999;padding:10px 16px;font-size:16px;background:#0066ff;color:white;border:none;border-radius:8px;';
+    testBtn2.textContent = 'touchstart+prevent';
+    testBtn2.style.cssText = 'position:fixed;bottom:100px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#0066ff;color:white;border:none;border-radius:8px;';
     testBtn2.addEventListener('touchstart', function(e) { e.preventDefault(); label.click(); });
     document.body.appendChild(testBtn2);
+
+    // Debug: test button triggered from touchstart (no preventDefault)
+    var testBtn3 = document.createElement('button');
+    testBtn3.textContent = 'touchstart (no prevent)';
+    testBtn3.style.cssText = 'position:fixed;bottom:150px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#00aa44;color:white;border:none;border-radius:8px;';
+    testBtn3.addEventListener('touchstart', function() { label.click(); });
+    document.body.appendChild(testBtn3);
+
+    // Debug: test button triggered from pointerdown
+    var testBtn4 = document.createElement('button');
+    testBtn4.textContent = 'pointerdown';
+    testBtn4.style.cssText = 'position:fixed;bottom:200px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#aa00aa;color:white;border:none;border-radius:8px;';
+    testBtn4.addEventListener('pointerdown', function() { label.click(); });
+    document.body.appendChild(testBtn4);
   });
 </script>
 <style>
@@ -2228,18 +2242,21 @@ function showToast(msg, type) {
 
 // Touch events
 boardContainer.addEventListener('touchstart', e => {
+  e.preventDefault();
   const t = e.touches[0];
   onSelectStart(t.clientX, t.clientY);
-});
+}, { passive: false });
 
 boardContainer.addEventListener('touchmove', e => {
+  e.preventDefault();
   const t = e.touches[0];
   onSelectMove(t.clientX, t.clientY);
-});
+}, { passive: false });
 
 boardContainer.addEventListener('touchend', e => {
+  e.preventDefault();
   onSelectEnd();
-});
+}, { passive: false });
 
 // Mouse events (for desktop)
 boardContainer.addEventListener('mousedown', e => {
