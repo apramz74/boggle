@@ -191,6 +191,7 @@
     width: 100%;
     max-width: 560px;
     aspect-ratio: 1;
+    touch-action: none;
   }
 
   .board {
@@ -2227,21 +2228,18 @@ function showToast(msg, type) {
 
 // Touch events
 boardContainer.addEventListener('touchstart', e => {
-  e.preventDefault();
   const t = e.touches[0];
   onSelectStart(t.clientX, t.clientY);
-}, { passive: false });
+});
 
 boardContainer.addEventListener('touchmove', e => {
-  e.preventDefault();
   const t = e.touches[0];
   onSelectMove(t.clientX, t.clientY);
-}, { passive: false });
+});
 
 boardContainer.addEventListener('touchend', e => {
-  e.preventDefault();
   onSelectEnd();
-}, { passive: false });
+});
 
 // Mouse events (for desktop)
 boardContainer.addEventListener('mousedown', e => {
