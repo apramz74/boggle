@@ -12,20 +12,22 @@
 <meta name="twitter:title" content="Let's boggle up!">
 <meta name="twitter:image" content="https://boggle-351dc.web.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script type="module">
+<script>
   // Haptic feedback via hidden <input type="checkbox" switch> (iOS Safari 17.4+)
   // Toggling this checkbox produces native haptic feedback on iOS.
-  const label = document.createElement('label');
-  label.setAttribute('for', 'haptic-switch');
-  label.style.cssText = 'position:fixed;top:-100px;left:-100px;opacity:0;';
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.setAttribute('switch', '');
-  checkbox.id = 'haptic-switch';
-  checkbox.style.cssText = 'all:initial;appearance:auto;';
-  label.appendChild(checkbox);
-  document.addEventListener('DOMContentLoaded', () => document.body.appendChild(label));
-  window._hapticLabel = label;
+  document.addEventListener('DOMContentLoaded', function() {
+    var label = document.createElement('label');
+    label.setAttribute('for', 'haptic-switch');
+    label.textContent = 'Haptic feedback';
+    label.style.cssText = 'position:fixed;bottom:10px;left:10px;padding:5px 10px;background:rgba(0,0,0,0.7);color:white;font:14px sans-serif;border-radius:4px;z-index:9999;user-select:none;opacity:0.01;pointer-events:none;';
+    var checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.setAttribute('switch', '');
+    checkbox.id = 'haptic-switch';
+    label.appendChild(checkbox);
+    document.body.appendChild(label);
+    window._hapticLabel = label;
+  });
 </script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
