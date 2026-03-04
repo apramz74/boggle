@@ -13,13 +13,14 @@
 <meta name="twitter:image" content="https://boggle-351dc.web.app/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
-  // Haptic feedback via hidden <input type="checkbox" switch> (iOS Safari 17.4+)
-  // Toggling this checkbox produces native haptic feedback on iOS.
+  // Haptic feedback via <input type="checkbox" switch> (iOS Safari 17.4+)
+  // iOS only fires switch haptics from real user click events.
+  // We place a hidden checkbox and expose it for programmatic use + testing.
   document.addEventListener('DOMContentLoaded', function() {
     var label = document.createElement('label');
     label.setAttribute('for', 'haptic-switch');
-    label.textContent = 'Haptic feedback';
-    label.style.cssText = 'position:fixed;bottom:10px;left:10px;padding:5px 10px;background:rgba(0,0,0,0.7);color:white;font:14px sans-serif;border-radius:4px;z-index:9999;user-select:none;';
+    label.textContent = 'Haptic';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;width:1px;height:1px;overflow:hidden;opacity:0.01;z-index:-1;';
     var checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.setAttribute('switch', '');
@@ -27,34 +28,7 @@
     label.appendChild(checkbox);
     document.body.appendChild(label);
     window._hapticLabel = label;
-
-    // Debug: test button that programmatically clicks the switch
-    var testBtn = document.createElement('button');
-    testBtn.textContent = 'Test haptic .click()';
-    testBtn.style.cssText = 'position:fixed;bottom:50px;left:10px;z-index:9999;padding:10px 16px;font-size:16px;background:#ff6600;color:white;border:none;border-radius:8px;';
-    testBtn.addEventListener('click', function() { label.click(); });
-    document.body.appendChild(testBtn);
-
-    // Debug: test button triggered from touchstart (with preventDefault)
-    var testBtn2 = document.createElement('button');
-    testBtn2.textContent = 'touchstart+prevent';
-    testBtn2.style.cssText = 'position:fixed;bottom:100px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#0066ff;color:white;border:none;border-radius:8px;';
-    testBtn2.addEventListener('touchstart', function(e) { e.preventDefault(); label.click(); });
-    document.body.appendChild(testBtn2);
-
-    // Debug: test button triggered from touchstart (no preventDefault)
-    var testBtn3 = document.createElement('button');
-    testBtn3.textContent = 'touchstart (no prevent)';
-    testBtn3.style.cssText = 'position:fixed;bottom:150px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#00aa44;color:white;border:none;border-radius:8px;';
-    testBtn3.addEventListener('touchstart', function() { label.click(); });
-    document.body.appendChild(testBtn3);
-
-    // Debug: test button triggered from pointerdown
-    var testBtn4 = document.createElement('button');
-    testBtn4.textContent = 'pointerdown';
-    testBtn4.style.cssText = 'position:fixed;bottom:200px;left:10px;z-index:9999;padding:10px 16px;font-size:14px;background:#aa00aa;color:white;border:none;border-radius:8px;';
-    testBtn4.addEventListener('pointerdown', function() { label.click(); });
-    document.body.appendChild(testBtn4);
+    window._hapticCheckbox = checkbox;
   });
 </script>
 <style>
@@ -1777,16 +1751,17 @@ function initAudio() {
 }
 
 function hapticTap() {
-  if (window._hapticLabel) window._hapticLabel.click();
+  var cb = window._hapticCheckbox;
+  if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
 }
 function hapticSuccess() {
-  if (window._hapticLabel) { window._hapticLabel.click(); window._hapticLabel.click(); }
+  hapticTap(); hapticTap();
 }
 function hapticError() {
-  if (window._hapticLabel) { window._hapticLabel.click(); window._hapticLabel.click(); window._hapticLabel.click(); }
+  hapticTap(); hapticTap(); hapticTap();
 }
 function hapticImpact() {
-  if (window._hapticLabel) window._hapticLabel.click();
+  hapticTap();
 }
 
 function playTick() {
