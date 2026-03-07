@@ -105,8 +105,16 @@
     text-transform: uppercase;
     color: var(--accent-pink);
     text-shadow: 0 2px 0 rgba(247, 37, 133, 0.18);
-    transition: opacity 0.1s;
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), font-size 0.15s ease-out, color 0.15s, text-shadow 0.15s;
     min-height: 32px;
+  }
+  .current-word.word-pulse {
+    animation: wordPulse 0.2s ease-out;
+  }
+  @keyframes wordPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(var(--word-pulse-scale, 1.05)); }
+    100% { transform: scale(1); }
   }
 
   /* --- FEEDBACK TOAST --- */
@@ -201,17 +209,19 @@
   }
   .tile.pop {
     animation: tilePop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    --pop-peak: calc(1 + 0.10 * var(--pop-intensity, 1));
+    --pop-settle: calc(1 + 0.04 * var(--pop-intensity, 1));
   }
   .tile.unpop {
     animation: tileUnpop 0.12s ease-out forwards;
   }
   @keyframes tilePop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.14); }
-    100% { transform: scale(1.06); }
+    50% { transform: scale(var(--pop-peak, 1.14)); }
+    100% { transform: scale(var(--pop-settle, 1.06)); }
   }
   @keyframes tileUnpop {
-    0% { transform: scale(1.06); }
+    0% { transform: scale(var(--pop-settle, 1.06)); }
     100% { transform: scale(1); }
   }
 
@@ -1215,6 +1225,21 @@
     animation: resultSlam 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
+  /* Tile selection sparkles */
+  .tile-sparkle {
+    position: fixed;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100;
+    animation: sparkleOut 0.45s ease-out forwards;
+  }
+  @keyframes sparkleOut {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+  }
+
   /* Confetti canvas */
   #confettiCanvas {
     position: fixed;
@@ -1731,6 +1756,63 @@ function initAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
 
+// ========== TILE SPARKLES ==========
+const _sparkleColors = ['#f72585', '#f77f00', '#06d6a0', '#4361ee', '#ffdd57'];
+
+function _spawnSparklesFromEdge(rect, side, count) {
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'tile-sparkle';
+    let x, y, sx, sy;
+    const spread = (Math.random() - 0.5) * rect.height * 0.6;
+    const dist = 25 + Math.random() * 30;
+    if (side === 'right') {
+      x = rect.right;
+      y = rect.top + rect.height / 2 + spread;
+      sx = dist; sy = (Math.random() - 0.5) * 20;
+    } else if (side === 'left') {
+      x = rect.left;
+      y = rect.top + rect.height / 2 + spread;
+      sx = -dist; sy = (Math.random() - 0.5) * 20;
+    } else if (side === 'top') {
+      x = rect.left + rect.width / 2 + spread;
+      y = rect.top;
+      sx = (Math.random() - 0.5) * 20; sy = -dist;
+    } else {
+      x = rect.left + rect.width / 2 + spread;
+      y = rect.bottom;
+      sx = (Math.random() - 0.5) * 20; sy = dist;
+    }
+    dot.style.setProperty('--sx', sx + 'px');
+    dot.style.setProperty('--sy', sy + 'px');
+    dot.style.left = x - 5 + 'px';
+    dot.style.top = y - 5 + 'px';
+    dot.style.background = _sparkleColors[Math.floor(Math.random() * _sparkleColors.length)];
+    document.body.appendChild(dot);
+    dot.addEventListener('animationend', () => dot.remove());
+  }
+}
+
+function spawnTileSparkles(tileEl, depth) {
+  const rect = tileEl.getBoundingClientRect();
+  const perSide = 3;
+  if (depth === 4) {
+    _spawnSparklesFromEdge(rect, 'right', perSide);
+  } else if (depth === 5) {
+    _spawnSparklesFromEdge(rect, 'left', perSide);
+    _spawnSparklesFromEdge(rect, 'right', perSide);
+  } else if (depth === 6) {
+    _spawnSparklesFromEdge(rect, 'top', perSide);
+    _spawnSparklesFromEdge(rect, 'left', perSide);
+    _spawnSparklesFromEdge(rect, 'right', perSide);
+  } else if (depth >= 7) {
+    _spawnSparklesFromEdge(rect, 'top', perSide);
+    _spawnSparklesFromEdge(rect, 'right', perSide);
+    _spawnSparklesFromEdge(rect, 'bottom', perSide);
+    _spawnSparklesFromEdge(rect, 'left', perSide);
+  }
+}
+
 // ========== HAPTICS ==========
 // Android only — iOS has no vibration API and the checkbox switch trick
 // only works from real click events, which don't fire during touch swipes.
@@ -2023,13 +2105,32 @@ function updateSelection() {
     tiles[i].classList.toggle('selected', isSelected);
 
     if (isSelected && !wasSelected) {
-      // Newly selected — pop in
+      // Newly selected — pop in with progressive intensity
+      const depth = selectedPath.indexOf(i) + 1;
+      const intensity = Math.min(1 + (depth - 1) * 0.35, 3.5);
+      tiles[i].style.setProperty('--pop-intensity', intensity);
+      // Progressive color: light yellow → deep orange-gold
+      const t = Math.min((depth - 1) / 6, 1); // 0 at depth 1, 1 at depth 7+
+      const h = Math.round(45 - t * 15);       // 45° yellow → 30° orange
+      const s = Math.round(90 + t * 10);        // 90% → 100% saturation
+      const l = Math.round(67 - t * 20);        // 67% light → 47% deep
+      tiles[i].style.background = `hsl(${h}, ${s}%, ${l}%)`;
+      tiles[i].style.borderColor = `hsl(${h - 5}, ${s}%, ${l - 15}%)`;
+      tiles[i].style.boxShadow = `0 4px 0 hsl(${h - 8}, ${s}%, ${l - 22}%), 0 6px 16px hsla(${h}, ${s}%, ${l - 10}%, 0.4)`;
       tiles[i].classList.remove('unpop');
       tiles[i].classList.remove('pop');
       void tiles[i].offsetWidth; // force reflow
       tiles[i].classList.add('pop');
+      // Sparkles from tile 4 onward, more sides with depth
+      if (depth >= 4) {
+        spawnTileSparkles(tiles[i], depth);
+      }
     } else if (!isSelected && wasSelected) {
-      // Deselected — pop out
+      // Deselected — pop out, clear inline styles
+      tiles[i].style.removeProperty('--pop-intensity');
+      tiles[i].style.background = '';
+      tiles[i].style.borderColor = '';
+      tiles[i].style.boxShadow = '';
       tiles[i].classList.remove('pop');
       tiles[i].classList.remove('unpop');
       void tiles[i].offsetWidth;
@@ -2039,7 +2140,34 @@ function updateSelection() {
 
   prevSelectedSet = new Set(selectedSet);
   const word = selectedPath.map(i => board[i] === 'Q' ? 'QU' : board[i]).join('');
+  const prevLen = currentWordEl.textContent.length;
   currentWordEl.textContent = word;
+
+  // Progressive word preview excitement
+  const len = selectedPath.length;
+  if (len <= 2) {
+    currentWordEl.style.fontSize = '';
+    currentWordEl.style.color = '';
+    currentWordEl.style.textShadow = '';
+  } else {
+    const t = Math.min((len - 3) / 4, 1); // 0 at 3 letters, 1 at 7+
+    const size = 30 + t * 10;              // 30px → 40px
+    const h = Math.round(330 + t * 60);    // pink 330° → warm 390° (30°)
+    const s = Math.round(85 + t * 15);     // 85% → 100%
+    const l = Math.round(55 - t * 10);     // 55% → 45%
+    currentWordEl.style.fontSize = size + 'px';
+    currentWordEl.style.color = `hsl(${h}, ${s}%, ${l}%)`;
+    currentWordEl.style.textShadow = `0 2px 0 hsla(${h}, ${s}%, ${l - 15}%, 0.25)`;
+  }
+
+  // Pulse on each new letter added
+  if (word.length > prevLen && len >= 3) {
+    currentWordEl.style.setProperty('--word-pulse-scale', 1 + Math.min(len * 0.02, 0.15));
+    currentWordEl.classList.remove('word-pulse');
+    void currentWordEl.offsetWidth;
+    currentWordEl.classList.add('word-pulse');
+  }
+
   updatePathSvg();
 }
 
@@ -2113,6 +2241,10 @@ function showTileResult(indices, resultClass) {
   // Apply result state to the selected tiles
   indices.forEach(idx => {
     tiles[idx].classList.remove('pop', 'unpop', 'selected');
+    tiles[idx].style.removeProperty('--pop-intensity');
+    tiles[idx].style.background = '';
+    tiles[idx].style.borderColor = '';
+    tiles[idx].style.boxShadow = '';
     tiles[idx].classList.add(resultClass);
   });
 
@@ -2137,12 +2269,20 @@ function submitWord() {
   prevSelectedSet = new Set();
   selectedPath = [];
   currentWordEl.textContent = '';
+  currentWordEl.style.fontSize = '';
+  currentWordEl.style.color = '';
+  currentWordEl.style.textShadow = '';
+  currentWordEl.classList.remove('word-pulse');
   updatePathSvg();
 
   // Clear selection styling (but don't unpop — we'll show result state instead)
   const tiles = boardEl.children;
   for (let i = 0; i < tiles.length; i++) {
     tiles[i].classList.remove('selected', 'pop', 'unpop');
+    tiles[i].style.removeProperty('--pop-intensity');
+    tiles[i].style.background = '';
+    tiles[i].style.borderColor = '';
+    tiles[i].style.boxShadow = '';
   }
 
   if (word.length < 3) return;
