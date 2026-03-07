@@ -2163,8 +2163,7 @@ function updateSelection() {
   if (word.length > prevLen && len >= 3) {
     currentWordEl.style.setProperty('--word-pulse-scale', 1 + Math.min(len * 0.02, 0.15));
     currentWordEl.classList.remove('word-pulse');
-    void currentWordEl.offsetWidth;
-    currentWordEl.classList.add('word-pulse');
+    requestAnimationFrame(() => currentWordEl.classList.add('word-pulse'));
   }
 
   updatePathSvg();
