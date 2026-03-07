@@ -2224,10 +2224,9 @@ function showToast(msg, type) {
 
 // Touch events
 boardContainer.addEventListener('touchstart', e => {
-  e.preventDefault();
   const t = e.touches[0];
   onSelectStart(t.clientX, t.clientY);
-}, { passive: false });
+}, { passive: true });
 
 boardContainer.addEventListener('touchmove', e => {
   e.preventDefault();
@@ -2239,6 +2238,11 @@ boardContainer.addEventListener('touchend', e => {
   e.preventDefault();
   onSelectEnd();
 }, { passive: false });
+
+// iOS haptic on tile tap (click fires after touchend when touchstart is passive)
+boardContainer.addEventListener('click', () => {
+  _iosHapticPulse();
+});
 
 // Mouse events (for desktop)
 boardContainer.addEventListener('mousedown', e => {
