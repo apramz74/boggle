@@ -1758,7 +1758,7 @@ function initAudio() {
 // ========== TILE SPARKLES ==========
 const _sparkleColors = ['#f72585', '#f77f00', '#06d6a0', '#4361ee', '#ffdd57'];
 
-function _spawnSparklesFromEdge(rect, side, count) {
+function _createSparklesFromEdge(rect, side, count, frag) {
   for (let i = 0; i < count; i++) {
     const dot = document.createElement('div');
     dot.className = 'tile-sparkle';
@@ -1782,34 +1782,32 @@ function _spawnSparklesFromEdge(rect, side, count) {
       y = rect.bottom;
       sx = (Math.random() - 0.5) * 35; sy = dist;
     }
-    dot.style.setProperty('--sx', sx + 'px');
-    dot.style.setProperty('--sy', sy + 'px');
-    dot.style.left = x - 5 + 'px';
-    dot.style.top = y - 5 + 'px';
-    dot.style.background = _sparkleColors[Math.floor(Math.random() * _sparkleColors.length)];
-    document.body.appendChild(dot);
+    dot.style.cssText = `--sx:${sx}px;--sy:${sy}px;left:${x - 14}px;top:${y - 14}px;background:${_sparkleColors[Math.floor(Math.random() * _sparkleColors.length)]}`;
     dot.addEventListener('animationend', () => dot.remove());
+    frag.appendChild(dot);
   }
 }
 
 function spawnTileSparkles(tileEl, depth) {
   const rect = tileEl.getBoundingClientRect();
   const perSide = 5;
+  const frag = document.createDocumentFragment();
   if (depth === 3) {
-    _spawnSparklesFromEdge(rect, 'right', perSide);
+    _createSparklesFromEdge(rect, 'right', perSide, frag);
   } else if (depth === 4) {
-    _spawnSparklesFromEdge(rect, 'left', perSide);
-    _spawnSparklesFromEdge(rect, 'right', perSide);
+    _createSparklesFromEdge(rect, 'left', perSide, frag);
+    _createSparklesFromEdge(rect, 'right', perSide, frag);
   } else if (depth === 5) {
-    _spawnSparklesFromEdge(rect, 'top', perSide);
-    _spawnSparklesFromEdge(rect, 'left', perSide);
-    _spawnSparklesFromEdge(rect, 'right', perSide);
+    _createSparklesFromEdge(rect, 'top', perSide, frag);
+    _createSparklesFromEdge(rect, 'left', perSide, frag);
+    _createSparklesFromEdge(rect, 'right', perSide, frag);
   } else if (depth >= 6) {
-    _spawnSparklesFromEdge(rect, 'top', perSide);
-    _spawnSparklesFromEdge(rect, 'right', perSide);
-    _spawnSparklesFromEdge(rect, 'bottom', perSide);
-    _spawnSparklesFromEdge(rect, 'left', perSide);
+    _createSparklesFromEdge(rect, 'top', perSide, frag);
+    _createSparklesFromEdge(rect, 'right', perSide, frag);
+    _createSparklesFromEdge(rect, 'bottom', perSide, frag);
+    _createSparklesFromEdge(rect, 'left', perSide, frag);
   }
+  document.body.appendChild(frag);
 }
 
 // ========== HAPTICS ==========
