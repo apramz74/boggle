@@ -1228,8 +1228,8 @@
   /* Tile selection sparkles */
   .tile-sparkle {
     position: fixed;
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 100;
@@ -1757,7 +1757,7 @@ function initAudio() {
 }
 
 // ========== TILE SPARKLES ==========
-const _sparkleColors = ['#4361ee', '#6b8cff', '#1a3fa0', '#93b5ff', '#f72585', '#ffffff'];
+const _sparkleColors = ['#f72585', '#f77f00', '#06d6a0', '#4361ee', '#ffdd57'];
 
 function _spawnSparklesFromEdge(rect, side, count) {
   for (let i = 0; i < count; i++) {
@@ -2109,15 +2109,14 @@ function updateSelection() {
       const depth = selectedPath.indexOf(i) + 1;
       const intensity = Math.min(1 + (depth - 1) * 0.35, 3.5);
       tiles[i].style.setProperty('--pop-intensity', intensity);
-      // Progressive color: pale blue → deep sapphire
+      // Progressive color: light yellow → deep orange-gold
       const t = Math.min((depth - 1) / 6, 1); // 0 at depth 1, 1 at depth 7+
-      const h = Math.round(220 + t * 10);       // 220° pale blue → 230° sapphire
-      const s = Math.round(60 + t * 30);         // 60% → 90% saturation
-      const l = Math.round(82 - t * 42);         // 82% pale → 40% deep
+      const h = Math.round(45 - t * 15);       // 45° yellow → 30° orange
+      const s = Math.round(90 + t * 10);        // 90% → 100% saturation
+      const l = Math.round(67 - t * 20);        // 67% light → 47% deep
       tiles[i].style.background = `hsl(${h}, ${s}%, ${l}%)`;
-      tiles[i].style.borderColor = `hsl(${h}, ${s + 5}%, ${l - 12}%)`;
-      tiles[i].style.boxShadow = `0 4px 0 hsl(${h}, ${s + 5}%, ${l - 18}%), 0 6px 16px hsla(${h}, ${s}%, ${l - 10}%, 0.35)`;
-      tiles[i].style.color = l > 55 ? '#1a1a2e' : '#ffffff';
+      tiles[i].style.borderColor = `hsl(${h - 5}, ${s}%, ${l - 15}%)`;
+      tiles[i].style.boxShadow = `0 4px 0 hsl(${h - 8}, ${s}%, ${l - 22}%), 0 6px 16px hsla(${h}, ${s}%, ${l - 10}%, 0.4)`;
       tiles[i].classList.remove('unpop');
       tiles[i].classList.remove('pop');
       void tiles[i].offsetWidth; // force reflow
@@ -2132,7 +2131,6 @@ function updateSelection() {
       tiles[i].style.background = '';
       tiles[i].style.borderColor = '';
       tiles[i].style.boxShadow = '';
-      tiles[i].style.color = '';
       tiles[i].classList.remove('pop');
       tiles[i].classList.remove('unpop');
       void tiles[i].offsetWidth;
@@ -2154,13 +2152,12 @@ function updateSelection() {
   } else {
     const t = Math.min((len - 3) / 4, 1); // 0 at 3 letters, 1 at 7+
     const size = 30 + t * 10;              // 30px → 40px
-    // Pink (330°) → deep sapphire (230°): interpolate through lower hues
-    const h = Math.round(330 - t * 100);    // 330° pink → 230° sapphire
-    const s = Math.round(75 + t * 15);      // 75% → 90%
-    const l = Math.round(50 - t * 15);      // 50% → 35% deep
+    const h = Math.round(330 + t * 60);    // pink 330° → warm 390° (30°)
+    const s = Math.round(85 + t * 15);     // 85% → 100%
+    const l = Math.round(55 - t * 10);     // 55% → 45%
     currentWordEl.style.fontSize = size + 'px';
     currentWordEl.style.color = `hsl(${h}, ${s}%, ${l}%)`;
-    currentWordEl.style.textShadow = `0 2px 0 hsla(${h}, ${s}%, ${l - 10}%, 0.3)`;
+    currentWordEl.style.textShadow = `0 2px 0 hsla(${h}, ${s}%, ${l - 15}%, 0.25)`;
   }
 
   // Pulse on each new letter added
@@ -2248,7 +2245,6 @@ function showTileResult(indices, resultClass) {
     tiles[idx].style.background = '';
     tiles[idx].style.borderColor = '';
     tiles[idx].style.boxShadow = '';
-    tiles[idx].style.color = '';
     tiles[idx].classList.add(resultClass);
   });
 
@@ -2287,7 +2283,6 @@ function submitWord() {
     tiles[i].style.background = '';
     tiles[i].style.borderColor = '';
     tiles[i].style.boxShadow = '';
-    tiles[i].style.color = '';
   }
 
   if (word.length < 3) return;
