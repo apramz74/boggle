@@ -190,7 +190,7 @@
     border-radius: 18px;
     box-shadow: 0 4px 0 #d4c8b8, 0 6px 12px rgba(0,0,0,0.07);
     font-family: 'Fredoka', sans-serif;
-    font-size: clamp(48px, 11vw, 90px);
+    font-size: inherit;
     font-weight: 600;
     color: #4a5568;
     cursor: pointer;
@@ -2055,9 +2055,11 @@ const musicToggle = document.getElementById('musicToggle');
 function renderBoard() {
   boardEl.innerHTML = '';
   boardEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
-  // Adjust gap for grid density; font size handled by CSS
   const gaps = { 4: 14, 5: 10, 6: 8 };
   boardEl.style.gap = (gaps[GRID_SIZE] || 10) + 'px';
+  // Scale font size with grid density so tiles stay square
+  const fontSizes = { 4: 'clamp(40px, 11vw, 90px)', 5: 'clamp(36px, 9vw, 72px)', 6: 'clamp(28px, 7vw, 56px)' };
+  boardEl.style.fontSize = fontSizes[GRID_SIZE] || fontSizes[5];
   board.forEach((letter, i) => {
     const tile = document.createElement('div');
     tile.className = 'tile';
