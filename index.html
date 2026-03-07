@@ -1796,16 +1796,16 @@ function _spawnSparklesFromEdge(rect, side, count) {
 function spawnTileSparkles(tileEl, depth) {
   const rect = tileEl.getBoundingClientRect();
   const perSide = 3;
-  if (depth === 4) {
+  if (depth === 3) {
     _spawnSparklesFromEdge(rect, 'right', perSide);
-  } else if (depth === 5) {
+  } else if (depth === 4) {
     _spawnSparklesFromEdge(rect, 'left', perSide);
     _spawnSparklesFromEdge(rect, 'right', perSide);
-  } else if (depth === 6) {
+  } else if (depth === 5) {
     _spawnSparklesFromEdge(rect, 'top', perSide);
     _spawnSparklesFromEdge(rect, 'left', perSide);
     _spawnSparklesFromEdge(rect, 'right', perSide);
-  } else if (depth >= 7) {
+  } else if (depth >= 6) {
     _spawnSparklesFromEdge(rect, 'top', perSide);
     _spawnSparklesFromEdge(rect, 'right', perSide);
     _spawnSparklesFromEdge(rect, 'bottom', perSide);
@@ -2109,11 +2109,11 @@ function updateSelection() {
       const depth = selectedPath.indexOf(i) + 1;
       const intensity = Math.min(1 + (depth - 1) * 0.35, 3.5);
       tiles[i].style.setProperty('--pop-intensity', intensity);
-      // Progressive color: light yellow → deep orange-gold
-      const t = Math.min((depth - 1) / 6, 1); // 0 at depth 1, 1 at depth 7+
-      const h = Math.round(45 - t * 15);       // 45° yellow → 30° orange
-      const s = Math.round(90 + t * 10);        // 90% → 100% saturation
-      const l = Math.round(67 - t * 20);        // 67% light → 47% deep
+      // Progressive color: pale yellow → deep orange-gold (aggressive ramp)
+      const t = Math.min((depth - 1) / 4, 1); // 0 at depth 1, 1 at depth 5+
+      const h = Math.round(48 - t * 18);       // 48° pale yellow → 30° orange
+      const s = Math.round(80 + t * 20);        // 80% → 100% saturation
+      const l = Math.round(75 - t * 30);        // 75% pale → 45% deep
       tiles[i].style.background = `hsl(${h}, ${s}%, ${l}%)`;
       tiles[i].style.borderColor = `hsl(${h - 5}, ${s}%, ${l - 15}%)`;
       tiles[i].style.boxShadow = `0 4px 0 hsl(${h - 8}, ${s}%, ${l - 22}%), 0 6px 16px hsla(${h}, ${s}%, ${l - 10}%, 0.4)`;
@@ -2121,8 +2121,8 @@ function updateSelection() {
       tiles[i].classList.remove('pop');
       void tiles[i].offsetWidth; // force reflow
       tiles[i].classList.add('pop');
-      // Sparkles from tile 4 onward, more sides with depth
-      if (depth >= 4) {
+      // Sparkles from tile 3 onward, more sides with depth
+      if (depth >= 3) {
         spawnTileSparkles(tiles[i], depth);
       }
     } else if (!isSelected && wasSelected) {
