@@ -1750,21 +1750,30 @@ function _iosHapticPulse() {
 }
 
 // Audio "thud" — sub-bass pulse felt through speakers/Taptic Engine coupling
+// Pre-rendered buffer approach: create waveform once, replay cheaply
+let _thudBuffer = null;
+function _initThudBuffer() {
+  if (_thudBuffer || !audioCtx) return;
+  const sr = audioCtx.sampleRate;
+  const len = Math.ceil(sr * 0.05); // 50ms
+  _thudBuffer = audioCtx.createBuffer(1, len, sr);
+  const data = _thudBuffer.getChannelData(0);
+  for (let i = 0; i < len; i++) {
+    const t = i / sr;
+    const freq = 60 * Math.pow(30 / 60, t / 0.03); // 60→30Hz sweep
+    const gain = 0.5 * Math.pow(0.001 / 0.5, t / 0.04); // rapid decay
+    data[i] = Math.sin(2 * Math.PI * freq * t) * gain;
+  }
+}
+
 function _audioThud() {
   if (!audioCtx) return;
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(60, now);     // 60Hz sub-bass
-  osc.frequency.exponentialRampToValueAtTime(30, now + 0.03);
-  gain.gain.setValueAtTime(0.5, now);         // Brief loud pulse
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-  osc.start(now);
-  osc.stop(now + 0.05);
+  if (!_thudBuffer) _initThudBuffer();
+  const src = audioCtx.createBufferSource();
+  src.buffer = _thudBuffer;
+  src.connect(audioCtx.destination);
+  src.start();
 }
 
 // Pending haptic for iOS click context
