@@ -3453,6 +3453,12 @@ checkUrlForChallenge();
     <button onclick="hapticError();_dbgLog('hapticError fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">hapticError()</button>
     <button onclick="hapticImpact();_dbgLog('hapticImpact fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f72585;color:#fff;font-size:13px;">hapticImpact()</button>
   </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #333;padding-top:8px;">
+    <span style="color:#888;font-size:11px;align-self:center;">Synthetic click test:</span>
+    <button id="btn-synth-click" style="padding:6px 12px;border:none;border-radius:6px;background:#4361ee;color:#fff;font-size:13px;">From click</button>
+    <button id="btn-synth-touchend" style="padding:6px 12px;border:none;border-radius:6px;background:#f77f00;color:#fff;font-size:13px;">From touchend</button>
+    <button id="btn-synth-settimeout" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">From setTimeout</button>
+  </div>
   <div id="dbg-log" style="font-size:11px;color:#aaa;max-height:60px;overflow-y:auto;">Ready. vibrate API: <script>document.write(!!navigator.vibrate)</script> | audioCtx: <script>document.write(typeof audioCtx !== 'undefined' && !!audioCtx)</script></div>
 </div>
 <script>
@@ -3463,6 +3469,38 @@ function _dbgLog(msg) {
   el.appendChild(line);
   el.scrollTop = el.scrollHeight;
 }
+
+// Test 1: haptic from real click (should work — baseline)
+document.getElementById('btn-synth-click').addEventListener('click', function() {
+  _iosHapticPulse();
+  _dbgLog('iOS haptic from real click');
+});
+
+// Test 2: haptic from touchend → synthetic .click()
+var _synthTarget = document.createElement('button');
+_synthTarget.style.display = 'none';
+document.body.appendChild(_synthTarget);
+_synthTarget.addEventListener('click', function() {
+  _iosHapticPulse();
+  _dbgLog('iOS haptic from synthetic click (touchend)');
+});
+document.getElementById('btn-synth-touchend').addEventListener('touchend', function(e) {
+  e.preventDefault();
+  _synthTarget.click();
+  _dbgLog('touchend fired, dispatched .click()');
+});
+document.getElementById('btn-synth-touchend').addEventListener('click', function(e) {
+  e.stopPropagation(); // prevent real click from also firing
+});
+
+// Test 3: haptic from setTimeout inside click (tests gesture timeout)
+document.getElementById('btn-synth-settimeout').addEventListener('click', function() {
+  _dbgLog('click fired, scheduling haptic in 0ms setTimeout');
+  setTimeout(function() {
+    _iosHapticPulse();
+    _dbgLog('iOS haptic from setTimeout(0) inside click');
+  }, 0);
+});
 </script>
 </body>
 </html>
