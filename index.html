@@ -1729,6 +1729,7 @@ let musicNodes = [];
 function initAudio() {
   if (audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
 // ========== HAPTICS ==========
@@ -1751,6 +1752,7 @@ function _iosHapticPulse() {
 // Audio "thud" — sub-bass pulse felt through speakers/Taptic Engine coupling
 function _audioThud() {
   if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   const now = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
