@@ -1748,25 +1748,27 @@ function _iosHapticPulse() {
   } catch(e) {}
 }
 
-// Pending haptic for iOS click context
-let _pendingHaptic = null;
-
 function hapticTap() {
   if (navigator.vibrate) navigator.vibrate(10);
+  else _iosHapticPulse();
 }
 
 function hapticSuccess() {
   if (navigator.vibrate) { navigator.vibrate([15, 30, 15]); return; }
-  _pendingHaptic = 'success';
+  _iosHapticPulse();
+  setTimeout(() => _iosHapticPulse(), 100);
 }
 
 function hapticError() {
   if (navigator.vibrate) { navigator.vibrate([40]); return; }
-  _pendingHaptic = 'error';
+  _iosHapticPulse();
+  setTimeout(() => _iosHapticPulse(), 100);
+  setTimeout(() => _iosHapticPulse(), 200);
 }
 
 function hapticImpact() {
   if (navigator.vibrate) navigator.vibrate(20);
+  else _iosHapticPulse();
 }
 
 function playTick() {
@@ -2120,6 +2122,7 @@ function onSelectMove(x, y) {
 function onSelectEnd() {
   if (!isSelecting || !gameActive) return;
   isSelecting = false;
+  hapticTap();
   submitWord();
 }
 
@@ -2236,19 +2239,6 @@ boardContainer.addEventListener('touchend', e => {
   e.preventDefault();
   onSelectEnd();
 }, { passive: false });
-
-// iOS native haptic on word submission (fires from click after finger lift)
-boardContainer.addEventListener('click', () => {
-  if (!_pendingHaptic) return;
-  _iosHapticPulse();
-  if (_pendingHaptic === 'success') {
-    setTimeout(() => _iosHapticPulse(), 100);
-  } else if (_pendingHaptic === 'error') {
-    setTimeout(() => _iosHapticPulse(), 100);
-    setTimeout(() => _iosHapticPulse(), 200);
-  }
-  _pendingHaptic = null;
-});
 
 // Mouse events (for desktop)
 boardContainer.addEventListener('mousedown', e => {
@@ -3454,8 +3444,8 @@ checkUrlForChallenge();
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
     <button onclick="_iosHapticPulse();_dbgLog('_iosHapticPulse fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">iOS Haptic</button>
     <button onclick="hapticTap();_dbgLog('hapticTap fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f77f00;color:#fff;font-size:13px;">hapticTap()</button>
-    <button onclick="hapticSuccess();_dbgLog('hapticSuccess fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">hapticSuccess()</button>
-    <button onclick="hapticError();_dbgLog('hapticError fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">hapticError()</button>
+    <button onclick="hapticSuccess();_dbgLog('hapticSuccess fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">hapticSuccess()</button>
+    <button onclick="hapticError();_dbgLog('hapticError fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">hapticError()</button>
     <button onclick="hapticImpact();_dbgLog('hapticImpact fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f72585;color:#fff;font-size:13px;">hapticImpact()</button>
   </div>
   <div id="dbg-log" style="font-size:11px;color:#aaa;max-height:60px;overflow-y:auto;">Ready. vibrate API: <script>document.write(!!navigator.vibrate)</script> | audioCtx: <script>document.write(typeof audioCtx !== 'undefined' && !!audioCtx)</script></div>
