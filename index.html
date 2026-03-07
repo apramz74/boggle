@@ -1228,8 +1228,8 @@
   /* Tile selection sparkles */
   .tile-sparkle {
     position: fixed;
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 100;
@@ -1764,24 +1764,24 @@ function _spawnSparklesFromEdge(rect, side, count) {
     const dot = document.createElement('div');
     dot.className = 'tile-sparkle';
     let x, y, sx, sy;
-    const spread = (Math.random() - 0.5) * rect.height * 0.6;
-    const dist = 25 + Math.random() * 30;
+    const spread = (Math.random() - 0.5) * rect.height * 0.8;
+    const dist = 45 + Math.random() * 40;
     if (side === 'right') {
       x = rect.right;
       y = rect.top + rect.height / 2 + spread;
-      sx = dist; sy = (Math.random() - 0.5) * 20;
+      sx = dist; sy = (Math.random() - 0.5) * 25;
     } else if (side === 'left') {
       x = rect.left;
       y = rect.top + rect.height / 2 + spread;
-      sx = -dist; sy = (Math.random() - 0.5) * 20;
+      sx = -dist; sy = (Math.random() - 0.5) * 25;
     } else if (side === 'top') {
       x = rect.left + rect.width / 2 + spread;
       y = rect.top;
-      sx = (Math.random() - 0.5) * 20; sy = -dist;
+      sx = (Math.random() - 0.5) * 25; sy = -dist;
     } else {
       x = rect.left + rect.width / 2 + spread;
       y = rect.bottom;
-      sx = (Math.random() - 0.5) * 20; sy = dist;
+      sx = (Math.random() - 0.5) * 25; sy = dist;
     }
     dot.style.setProperty('--sx', sx + 'px');
     dot.style.setProperty('--sy', sy + 'px');
