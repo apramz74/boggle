@@ -1749,39 +1749,11 @@ function _iosHapticPulse() {
   } catch(e) {}
 }
 
-// Audio "thud" — sub-bass pulse felt through speakers/Taptic Engine coupling
-// Pre-rendered buffer approach: create waveform once, replay cheaply
-let _thudBuffer = null;
-function _initThudBuffer() {
-  if (_thudBuffer || !audioCtx) return;
-  const sr = audioCtx.sampleRate;
-  const len = Math.ceil(sr * 0.05); // 50ms
-  _thudBuffer = audioCtx.createBuffer(1, len, sr);
-  const data = _thudBuffer.getChannelData(0);
-  for (let i = 0; i < len; i++) {
-    const t = i / sr;
-    const freq = 60 * Math.pow(30 / 60, t / 0.03); // 60→30Hz sweep
-    const gain = 0.5 * Math.pow(0.001 / 0.5, t / 0.04); // rapid decay
-    data[i] = Math.sin(2 * Math.PI * freq * t) * gain;
-  }
-}
-
-function _audioThud() {
-  if (!audioCtx) return;
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  if (!_thudBuffer) _initThudBuffer();
-  const src = audioCtx.createBufferSource();
-  src.buffer = _thudBuffer;
-  src.connect(audioCtx.destination);
-  src.start();
-}
-
 // Pending haptic for iOS click context
 let _pendingHaptic = null;
 
 function hapticTap() {
   if (navigator.vibrate) navigator.vibrate(10);
-  _audioThud();
 }
 
 function hapticSuccess() {
@@ -1796,7 +1768,6 @@ function hapticError() {
 
 function hapticImpact() {
   if (navigator.vibrate) navigator.vibrate(20);
-  _audioThud();
 }
 
 function playTick() {
@@ -3481,12 +3452,11 @@ checkUrlForChallenge();
 <canvas id="confettiCanvas"></canvas>
 <div id="debug-haptics" style="position:fixed;bottom:0;left:0;right:0;background:#1a1a2e;color:#fff;padding:10px;z-index:9999;font-family:monospace;font-size:13px;display:flex;flex-direction:column;gap:8px;">
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
-    <button onclick="initAudio();_audioThud();_dbgLog('_audioThud fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#4361ee;color:#fff;font-size:13px;">Audio Thud</button>
     <button onclick="_iosHapticPulse();_dbgLog('_iosHapticPulse fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">iOS Haptic</button>
-    <button onclick="initAudio();hapticTap();_dbgLog('hapticTap fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f77f00;color:#fff;font-size:13px;">hapticTap()</button>
-    <button onclick="initAudio();hapticSuccess();_dbgLog('hapticSuccess fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">hapticSuccess()</button>
-    <button onclick="initAudio();hapticError();_dbgLog('hapticError fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">hapticError()</button>
-    <button onclick="initAudio();hapticImpact();_dbgLog('hapticImpact fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f72585;color:#fff;font-size:13px;">hapticImpact()</button>
+    <button onclick="hapticTap();_dbgLog('hapticTap fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f77f00;color:#fff;font-size:13px;">hapticTap()</button>
+    <button onclick="hapticSuccess();_dbgLog('hapticSuccess fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:13px;">hapticSuccess()</button>
+    <button onclick="hapticError();_dbgLog('hapticError fired, pending='+_pendingHaptic)" style="padding:6px 12px;border:none;border-radius:6px;background:#ef233c;color:#fff;font-size:13px;">hapticError()</button>
+    <button onclick="hapticImpact();_dbgLog('hapticImpact fired')" style="padding:6px 12px;border:none;border-radius:6px;background:#f72585;color:#fff;font-size:13px;">hapticImpact()</button>
   </div>
   <div id="dbg-log" style="font-size:11px;color:#aaa;max-height:60px;overflow-y:auto;">Ready. vibrate API: <script>document.write(!!navigator.vibrate)</script> | audioCtx: <script>document.write(typeof audioCtx !== 'undefined' && !!audioCtx)</script></div>
 </div>
