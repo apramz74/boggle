@@ -2237,6 +2237,7 @@ boardContainer.addEventListener('touchmove', e => {
 boardContainer.addEventListener('touchend', e => {
   e.preventDefault();
   onSelectEnd();
+  boardContainer.click(); // Synthetic click to trigger iOS haptic
 }, { passive: false });
 
 // iOS haptic on tile tap (click fires after touchend when touchstart is passive)
