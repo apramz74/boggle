@@ -368,6 +368,11 @@
     color: var(--accent-gold);
     margin-bottom: 2px;
   }
+  .end-score-label {
+    font-size: 22px;
+    font-weight: 500;
+    opacity: 0.6;
+  }
 
   .end-ratio {
     color: var(--text-dim);
@@ -500,6 +505,147 @@
   .accordion-word.missed:hover {
     background: rgba(0,0,0,0.08);
   }
+
+  /* --- TIER BREAKDOWN (solo end screen) --- */
+  .tier-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .tier-section {
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    border: 2px solid rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .tier-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: default;
+  }
+  .tier-header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .tier-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.55;
+  }
+  .tier-ratio {
+    font-family: 'Fredoka', sans-serif;
+  }
+  .tier-ratio-found {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .tier-ratio-total {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.45;
+  }
+  .tier-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5px;
+    padding: 0 14px 8px;
+  }
+  .tier-bar-segment {
+    height: 6px;
+    border-radius: 3px;
+    min-width: 0;
+    flex: 1 1 0%;
+    transition: opacity 0.15s;
+  }
+  .tier-bar-segment.found {
+    opacity: 1;
+  }
+  .tier-bar-segment.missed {
+    opacity: 0.3;
+    background: transparent !important;
+    border: 1.5px solid;
+    height: 6px;
+    box-sizing: border-box;
+  }
+  .tier-details-toggle {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 14px 10px;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+  .tier-details-toggle:hover {
+    opacity: 1;
+  }
+  .tier-body {
+    display: none;
+    padding: 4px 10px 10px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .tier-section.open .tier-body {
+    display: block;
+  }
+  .tier-words-group-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.35;
+    margin: 8px 4px 4px;
+  }
+  .tier-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tier-chip {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.1s, background 0.1s;
+  }
+  .tier-chip.found:hover {
+    opacity: 0.8;
+  }
+  .tier-chip.missed {
+    background: transparent;
+    opacity: 0.35;
+    transition: opacity 0.1s;
+  }
+  .tier-chip.missed:hover {
+    opacity: 0.6;
+  }
+  /* Tier-specific colors */
+  .tier-section[data-tier="bigbrain"] .tier-bar-segment.found { background: #8B5CF6; }
+  .tier-section[data-tier="bigbrain"] .tier-bar-segment.missed { border-color: #8B5CF6; }
+  .tier-section[data-tier="bigbrain"] .tier-chip.found { background: rgba(139,92,246,0.18); color: #5B21B6; }
+  .tier-section[data-tier="bigbrain"] .tier-chip.missed { border: 1.5px solid rgba(139,92,246,0.35); color: #5B21B6; }
+
+  .tier-section[data-tier="tricky"] .tier-bar-segment.found { background: #5B6ABF; }
+  .tier-section[data-tier="tricky"] .tier-bar-segment.missed { border-color: #5B6ABF; }
+  .tier-section[data-tier="tricky"] .tier-chip.found { background: rgba(91,106,191,0.18); color: #3730A3; }
+  .tier-section[data-tier="tricky"] .tier-chip.missed { border: 1.5px solid rgba(91,106,191,0.35); color: #3730A3; }
+
+  .tier-section[data-tier="easy"] .tier-bar-segment.found { background: #7EC8E3; }
+  .tier-section[data-tier="easy"] .tier-bar-segment.missed { border-color: #7EC8E3; }
+  .tier-section[data-tier="easy"] .tier-chip.found { background: rgba(126,200,227,0.22); color: #1E6A8A; }
+  .tier-section[data-tier="easy"] .tier-chip.missed { border: 1.5px solid rgba(126,200,227,0.45); color: #1E6A8A; }
 
   /* Play again trigger */
   .play-again-trigger {
@@ -1430,7 +1576,7 @@
 <div class="overlay hidden" id="endScreen">
   <div class="end-header">
     <h1>Time's up</h1>
-    <div class="end-score" id="endScore">0</div>
+    <div class="end-score"><span id="endScore">0</span> <span class="end-score-label">points</span></div>
     <div class="end-ratio" id="endRatio">0/0 words</div>
   </div>
   <div class="accordion-container" id="accordionContainer"></div>
@@ -1516,6 +1662,7 @@
 
 <!-- Dictionary (extracted for maintainability) -->
 <script src="dictionary.js"></script>
+<script src="common-words.js"></script>
 
 <script>
 // ========== FIREBASE ==========
@@ -1592,6 +1739,41 @@ async function loadDictionary() {
     console.log('Dictionary loaded:', VALID_WORDS.size, 'words,', PREFIX_SET.size, 'prefixes');
   } catch (e) {
     console.error('Dict load failed:', e);
+  }
+}
+
+// ========== COMMON WORDS (for difficulty scoring) ==========
+let COMMON_WORDS = new Set();
+let commonWordsReady = false;
+
+async function loadCommonWords() {
+  if (commonWordsReady) return;
+  try {
+    const binary = Uint8Array.from(atob(COMMON_WORDS_GZ_B64), c => c.charCodeAt(0));
+    const ds = new DecompressionStream('gzip');
+    const writer = ds.writable.getWriter();
+    writer.write(binary);
+    writer.close();
+    const reader = ds.readable.getReader();
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const totalLen = chunks.reduce((a, c) => a + c.length, 0);
+    const merged = new Uint8Array(totalLen);
+    let offset = 0;
+    for (const chunk of chunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+    const csv = new TextDecoder().decode(merged);
+    COMMON_WORDS = new Set(csv.split(','));
+    commonWordsReady = true;
+    console.log('Common words loaded:', COMMON_WORDS.size, 'words');
+  } catch (e) {
+    console.error('Common words load failed:', e);
   }
 }
 
@@ -1731,6 +1913,78 @@ function scoreWord(word) {
   if (len === 6) return 3;
   if (len === 7) return 5;
   return 11;
+}
+
+// ========== DIFFICULTY SCORING ==========
+function getFrequencyScore(word) {
+  return COMMON_WORDS.has(word) ? 0.15 : 0.75;
+}
+
+function getLengthScore(word) {
+  return Math.min(Math.max((word.length - 3) / 4, 0), 1);
+}
+
+function getPathComplexityScore(word) {
+  const path = allWordPaths[word];
+  if (!path || path.length < 2) return 0;
+
+  let directionChanges = 0;
+  let diagonalMoves = 0;
+  let prevDr = null, prevDc = null;
+
+  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+
+  for (let i = 0; i < path.length; i++) {
+    const r = Math.floor(path[i] / GRID_SIZE);
+    const c = path[i] % GRID_SIZE;
+    minR = Math.min(minR, r); maxR = Math.max(maxR, r);
+    minC = Math.min(minC, c); maxC = Math.max(maxC, c);
+
+    if (i > 0) {
+      const pr = Math.floor(path[i - 1] / GRID_SIZE);
+      const pc = path[i - 1] % GRID_SIZE;
+      const dr = r - pr;
+      const dc = c - pc;
+
+      if (Math.abs(dr) === 1 && Math.abs(dc) === 1) diagonalMoves++;
+
+      if (prevDr !== null && (dr !== prevDr || dc !== prevDc)) directionChanges++;
+      prevDr = dr;
+      prevDc = dc;
+    }
+  }
+
+  const steps = path.length - 1;
+  const maxChanges = Math.max(steps - 1, 1);
+  const changeRatio = directionChanges / maxChanges;
+  const diagonalRatio = diagonalMoves / steps;
+  const spread = ((maxR - minR + 1) * (maxC - minC + 1)) / (GRID_SIZE * GRID_SIZE);
+
+  return Math.min(changeRatio * 0.4 + diagonalRatio * 0.25 + spread * 0.35, 1);
+}
+
+function getWordDifficulty(word) {
+  return getFrequencyScore(word) * 0.5 + getLengthScore(word) * 0.2 + getPathComplexityScore(word) * 0.3;
+}
+
+function classifyWordsIntoTiers(allWords, foundWordSet) {
+  const scored = [];
+  for (const word of allWords) {
+    if (word.length < MIN_WORD_LENGTH) continue;
+    scored.push({ word, score: getWordDifficulty(word), found: foundWordSet.has(word) });
+  }
+  scored.sort((a, b) => a.score - b.score);
+
+  // Split into thirds by rank for balanced tiers
+  const total = scored.length;
+  const third = Math.round(total / 3);
+  const twoThirds = Math.round(total * 2 / 3);
+
+  return {
+    easy: scored.slice(0, third),
+    tricky: scored.slice(third, twoThirds),
+    bigbrain: scored.slice(twoThirds),
+  };
 }
 
 // ========== GAME STATE ==========
@@ -2424,7 +2678,7 @@ async function startGame() {
   if (!dictionaryReady) {
     document.getElementById('startBtn').textContent = 'Loading...';
     document.getElementById('replayBtn').textContent = 'Loading...';
-    await loadDictionary();
+    await Promise.all([loadDictionary(), loadCommonWords()]);
     document.getElementById('startBtn').textContent = 'Play';
     document.getElementById('replayBtn').textContent = 'Play';
   }
@@ -2490,7 +2744,7 @@ function showSoloEndScreen() {
 
   const container = document.getElementById('accordionContainer');
   container.innerHTML = '';
-  buildWordAccordion(container, validWordsOnBoard, foundWords);
+  buildTierBreakdown(container, validWordsOnBoard, foundWords);
   endScreen.classList.remove('hidden');
 }
 
@@ -2558,6 +2812,119 @@ function buildWordAccordion(container, allWords, myWords, theirWords, stagger = 
   });
 }
 
+function buildTierBreakdown(container, allWords, foundWordSet) {
+  const tiers = classifyWordsIntoTiers(allWords, foundWordSet);
+  const tierOrder = [
+    { key: 'bigbrain', label: 'Big Brain' },
+    { key: 'tricky', label: 'Tricky' },
+    { key: 'easy', label: 'Easy' },
+  ];
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'tier-container';
+
+  for (const { key, label } of tierOrder) {
+    const items = tiers[key];
+    if (!items || items.length === 0) continue;
+
+    const foundItems = items.filter(i => i.found);
+    const missedItems = items.filter(i => !i.found);
+
+    // Sort: found longest-first, missed shortest-first
+    foundItems.sort((a, b) => b.word.length - a.word.length || a.word.localeCompare(b.word));
+    missedItems.sort((a, b) => a.word.length - b.word.length || a.word.localeCompare(b.word));
+
+    const section = document.createElement('div');
+    section.className = 'tier-section';
+    section.dataset.tier = key;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'tier-header';
+    header.innerHTML = `
+      <div class="tier-header-left">
+        <span class="tier-label">${label}</span>
+      </div>
+      <div class="tier-ratio">
+        <span class="tier-ratio-found">${foundItems.length}</span><span class="tier-ratio-total"> / ${items.length}</span>
+      </div>
+    `;
+
+    // Segment bar
+    const bar = document.createElement('div');
+    bar.className = 'tier-bar';
+
+    foundItems.forEach(() => {
+      const seg = document.createElement('div');
+      seg.className = 'tier-bar-segment found';
+      bar.appendChild(seg);
+    });
+
+    missedItems.forEach(() => {
+      const seg = document.createElement('div');
+      seg.className = 'tier-bar-segment missed';
+      bar.appendChild(seg);
+    });
+
+    // Details toggle
+    const toggle = document.createElement('button');
+    toggle.className = 'tier-details-toggle';
+    toggle.textContent = 'details';
+    toggle.addEventListener('click', () => {
+      const isOpen = section.classList.toggle('open');
+      toggle.textContent = isOpen ? 'hide' : 'details';
+    });
+
+    // Body (expandable)
+    const body = document.createElement('div');
+    body.className = 'tier-body';
+
+    if (foundItems.length > 0) {
+      const foundLabel = document.createElement('div');
+      foundLabel.className = 'tier-words-group-label';
+      foundLabel.textContent = 'Found';
+      body.appendChild(foundLabel);
+
+      const foundWords = document.createElement('div');
+      foundWords.className = 'tier-words';
+      foundItems.forEach(({ word }) => {
+        const chip = document.createElement('span');
+        chip.className = 'tier-chip found';
+        chip.textContent = word;
+        chip.addEventListener('click', () => showWordPath(word));
+        foundWords.appendChild(chip);
+      });
+      body.appendChild(foundWords);
+    }
+
+    if (missedItems.length > 0) {
+      const missedLabel = document.createElement('div');
+      missedLabel.className = 'tier-words-group-label';
+      missedLabel.textContent = 'Missed';
+      body.appendChild(missedLabel);
+
+      const missedWords = document.createElement('div');
+      missedWords.className = 'tier-words';
+      missedItems.forEach(({ word }) => {
+        const chip = document.createElement('span');
+        chip.className = 'tier-chip missed';
+        chip.textContent = word;
+        chip.addEventListener('click', () => showWordPath(word));
+        missedWords.appendChild(chip);
+      });
+      body.appendChild(missedWords);
+    }
+
+    section.appendChild(header);
+    section.appendChild(bar);
+    section.appendChild(toggle);
+    section.appendChild(body);
+    wrapper.appendChild(section);
+  }
+
+  container.appendChild(wrapper);
+}
+
 // ========== CHALLENGE MODE FUNCTIONS ==========
 
 async function createChallenge() {
@@ -2576,7 +2943,7 @@ async function createChallenge() {
   // Load dictionary if needed
   if (!dictionaryReady) {
     document.getElementById('challengeBtn').textContent = 'Loading...';
-    await loadDictionary();
+    await Promise.all([loadDictionary(), loadCommonWords()]);
     document.getElementById('challengeBtn').textContent = 'Challenge a Friend';
   }
 
@@ -2701,7 +3068,7 @@ async function showChallengeResults(data) {
 
   // Set up validWordsOnBoard if not already (for comparison accordion word paths)
   if (!validWordsOnBoard || validWordsOnBoard.size === 0) {
-    await loadDictionary();
+    await Promise.all([loadDictionary(), loadCommonWords()]);
     GRID_SIZE = data.gridSize;
     MIN_WORD_LENGTH = data.minWordLength;
     NEIGHBOR_MAP = buildNeighborMap();
@@ -3461,6 +3828,42 @@ document.getElementById('challengeErrorHomeBtn').addEventListener('click', () =>
 });
 
 // ========== DEV BACKDOOR ==========
+// Usage: call window.__testTiers() from browser console
+// Options: __testTiers({ foundRatio }) — ratio 0-1 of words "found" (default 0.3)
+// Scenarios: __testTiers({ foundRatio: 0 })  → missed everything
+//            __testTiers({ foundRatio: 1 })  → found everything
+//            __testTiers({ foundRatio: 0.3 })→ typical game
+window.__testTiers = async function(opts = {}) {
+  const ratio = opts.foundRatio ?? 0.3;
+
+  await Promise.all([loadDictionary(), loadCommonWords()]);
+  GRID_SIZE = 5;
+  MIN_WORD_LENGTH = 4;
+  NEIGHBOR_MAP = buildNeighborMap();
+  board = generateBoard();
+  const solveResult = findAllWords(board);
+  validWordsOnBoard = solveResult.words;
+  allWordPaths = solveResult.paths;
+
+  const allWords = [...validWordsOnBoard].sort(() => Math.random() - 0.5);
+  const foundCount = Math.round(allWords.length * Math.min(Math.max(ratio, 0), 1));
+  const myWords = allWords.slice(0, foundCount);
+
+  foundWords = new Set(myWords);
+  totalScore = myWords.reduce((s, w) => s + scoreWord(w), 0);
+
+  // Hide all overlays, show solo end screen
+  document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
+  gameUI.style.visibility = 'hidden';
+  wordArea.style.visibility = 'hidden';
+  boardContainer.style.visibility = 'hidden';
+  showSoloEndScreen();
+
+  console.log(`[dev] Tier breakdown test: foundRatio=${ratio}`,
+    `\n  Found: ${foundWords.size}/${validWordsOnBoard.size} words, score: ${totalScore}`,
+    `\n  Board has ${validWordsOnBoard.size} valid words`);
+};
+
 // Usage: call window.__testComparison() from browser console
 // Options: __testComparison({ myWordCount, theirWordCount, scenario })
 // scenario: 'win' (default), 'lose', 'tie', 'blowout', 'close', 'empty'
@@ -3468,7 +3871,7 @@ window.__testComparison = async function(opts = {}) {
   const scenario = opts.scenario || 'win';
 
   // Ensure dictionary is loaded and board is solved
-  await loadDictionary();
+  await Promise.all([loadDictionary(), loadCommonWords()]);
   GRID_SIZE = 5;
   MIN_WORD_LENGTH = 4;
   NEIGHBOR_MAP = buildNeighborMap();
