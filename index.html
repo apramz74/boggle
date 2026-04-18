@@ -2437,6 +2437,11 @@ async function startGame() {
   document.getElementById('challengeLobbyScreen').classList.add('hidden');
   document.getElementById('challengeEndScreen').classList.add('hidden');
   document.getElementById('challengeErrorScreen').classList.add('hidden');
+  currentWordEl.textContent = '';
+  currentWordEl.style.fontSize = '';
+  currentWordEl.style.color = '';
+  currentWordEl.style.textShadow = '';
+  currentWordEl.classList.remove('word-pulse');
   gameUI.style.visibility = 'visible';
   wordArea.style.visibility = 'visible';
   boardContainer.style.visibility = 'visible';
@@ -2458,11 +2463,6 @@ async function startGame() {
   timerSeconds = gameDuration;
   scoreEl.textContent = '0';
   pathSvg.innerHTML = '';
-  currentWordEl.textContent = '';
-  currentWordEl.style.fontSize = '';
-  currentWordEl.style.color = '';
-  currentWordEl.style.textShadow = '';
-  currentWordEl.classList.remove('word-pulse');
 
   renderBoard();
   startTimer();
